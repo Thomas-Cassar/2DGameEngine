@@ -4,7 +4,6 @@
 
 /**
  * @brief If assert returns false the program breaks
- * 
  */
 #define assert(x)\
     if(!(x))\
@@ -13,7 +12,6 @@
 /**
  * @brief Clears previous errors, runs the function and logs and
  * breaks in the case of an error.
- * 
  */
 #define glCheck(x)\
     glClearErrors();\
@@ -26,9 +24,6 @@
  * @return ** void 
  */
 void glClearErrors();
-{
-    while (glGetError() != GL_NO_ERROR);
-}
 
 /**
  * @brief Prints any errors to the cerr output
@@ -39,12 +34,4 @@ void glClearErrors();
  * @return true The function ran successfully
  * @return false The function is unsuccessful and the error was logged
  */
-bool glLogErrors(const char* function, const char* file, int line)
-{
-    while (GLenum error = glGetError())
-	{
-		std::cout << "[OpenGL Error] (" << error << ")" << function << " " << file << ":" << line << std::endl;
-		return false;
-	}
-	return true;
-}
+bool glLogErrors(const char* function, const char* file, int line);

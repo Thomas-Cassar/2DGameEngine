@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(2DGameEngine VERSION 0.1.0)
 
-include(CTest)
-enable_testing()
-
 add_executable(2DGameEngine src/engine/main.cpp)
 
 include(FetchContent)
@@ -40,11 +37,16 @@ FetchContent_MakeAvailable(glew-cmake)
 
 if(NOT glew-cmake_POPULATED)
     FetchContent_Populate(glew-cmake)
-    add_subdirectory(${glew-cmake_SOURCE_DIR} ${glew-cmake_BINARY_DIR} ${glew-cmake_INCLUDE_DIR})
-    target_include_directories(2DGameEngine ${glew-cmake_INCLUDE_DIR})
 endif()
 
-target_link_libraries(2DGameEngine glfw libglew_static)
+#Graphics Lib
+file(GLOB GRAPHICS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/*.cpp)
+add_library(graphics ${GRAPHICS_SRCS})
+target_include_directories(graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/includes)
+target_link_libraries(graphics libglew_static)
+
+#Link libs to main executable
+target_link_libraries(2DGameEngine glfw libglew_static graphics)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

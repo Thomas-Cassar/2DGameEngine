@@ -3,13 +3,9 @@
 class IndexBuffer
 {
 private:
-    /**
-     * @brief ID given to this index buffer by OpenGL
-     */
+    /** ID given to this index buffer by OpenGL*/
     unsigned int ibID;
-    /**
-     * @brief The count of indicies in the buffer
-     */
+    /** The count of indicies in the buffer*/
     unsigned int count;
 
 public:

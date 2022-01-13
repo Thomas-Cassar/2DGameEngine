@@ -1,5 +1,5 @@
 #include <iostream>
-#include "GL/glew.h"
+#include "Graphics.hpp"
 #include "GLFW/glfw3.h"
 
 void error_callback(int error, const char* description)
@@ -38,9 +38,14 @@ int main()
 		std::cout << "Error" << std::endl;
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
+	//Set clear color
+	glClearColor(1.0f,1.0f,1.0f,1.0f);
+
     while(!glfwWindowShouldClose(window))
     {
-
+		glClear(GL_COLOR_BUFFER_BIT);
+		glfwSwapBuffers(window);
+		glfwWaitEvents();
     }
 
     glfwTerminate();

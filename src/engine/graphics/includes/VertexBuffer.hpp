@@ -3,10 +3,7 @@
 class VertexBuffer
 {
     private:
-    /**
-     * @brief ID given to this vertex buffer by OpenGL
-     * 
-     */
+    /** ID given to this vertex buffer by OpenGL*/
     unsigned int vbID;
 
     public:
