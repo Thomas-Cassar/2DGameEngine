@@ -5,9 +5,20 @@
 /**
  * @brief If assert returns false the program breaks
  */
+#ifdef __linux__
 #define assert(x)\
     if(!(x))\
-        __debugbreak();
+        __builtin_trap();
+#elif _WIN32
+#define assert(x)\
+    if(!(x))\
+    __debugbreak();
+#else
+    #define assert(x)\
+    if(!(x))\
+        exit(1);
+#endif
+        
 
 /**
  * @brief Clears previous errors, runs the function and logs and
