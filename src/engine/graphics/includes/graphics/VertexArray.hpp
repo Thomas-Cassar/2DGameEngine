@@ -1,7 +1,7 @@
 #pragma once
 
-#include "VertexBuffer.hpp"
-#include "VertexBufferLayout.hpp"
+#include "graphics/VertexBuffer.hpp"
+#include "graphics/VertexBufferLayout.hpp"
 
 class VertexArray
 {
@@ -40,6 +40,6 @@ class VertexArray
      * @brief Unbinds the current VA
      * 
      */
-    void unBind() const;
+    void unbind() const;
 
 };

@@ -1,5 +1,5 @@
-#include "IndexBuffer.hpp"
-#include "Graphics.hpp"
+#include "graphics/IndexBuffer.hpp"
+#include "graphics/Graphics.hpp"
 
 IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count)
     :count(count)
@@ -22,4 +22,9 @@ void IndexBuffer::bind() const
 void IndexBuffer::unbind() const
 {
 	glCheck(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+}
+
+unsigned int IndexBuffer::getCount() const
+{
+    return count;
 }

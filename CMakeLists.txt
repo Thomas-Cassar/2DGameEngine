@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(2DGameEngine VERSION 0.1.0)
 
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release)
 add_executable(2DGameEngine src/engine/main.cpp)
 
 include(FetchContent)
@@ -37,6 +42,8 @@ FetchContent_MakeAvailable(glew-cmake)
 
 if(NOT glew-cmake_POPULATED)
     FetchContent_Populate(glew-cmake)
+
+    set(ONLY_LIBS ON)
 endif()
 
 #Graphics Lib
@@ -47,6 +54,15 @@ target_link_libraries(graphics libglew_static)
 
 #Link libs to main executable
 target_link_libraries(2DGameEngine glfw libglew_static graphics)
+
+#Add shaders to build dir
+file(GLOB SHADER_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/shaders/*)
+file(MAKE_DIRECTORY 
+${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/shaders
+${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/shaders
+)
+file(COPY ${SHADER_SRCS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/shaders)
+file(COPY ${SHADER_SRCS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/shaders)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

@@ -1,5 +1,5 @@
-#include "VertexArray.hpp"
-#include "Graphics.hpp"
+#include "graphics/VertexArray.hpp"
+#include "graphics/Graphics.hpp"
 
 VertexArray::VertexArray()
 {
@@ -34,7 +34,7 @@ void VertexArray::bind() const
     glCheck(glBindVertexArray(vaID));
 }
 
-void VertexArray::unBind() const
+void VertexArray::unbind() const
 {
     glCheck(glBindVertexArray(0));
 }

@@ -1,6 +1,12 @@
 #include <iostream>
-#include "Graphics.hpp"
+#include "graphics/Graphics.hpp"
 #include "GLFW/glfw3.h"
+
+#include "graphics/Shader.hpp"
+#include "graphics/IndexBuffer.hpp"
+#include "graphics/VertexBuffer.hpp"
+#include "graphics/VertexBufferLayout.hpp"
+#include "graphics/VertexArray.hpp"
 
 void error_callback(int error, const char* description)
 {
@@ -41,11 +47,39 @@ int main()
 	//Set clear color
 	glClearColor(1.0f,1.0f,1.0f,1.0f);
 
+	//Test code
+	float testVerArray[]=
+	{
+		-0.5f, -0.5f, 1.0f,0.0f,0.0f,
+    	0.5f, -0.5f, 0.0f,1.0f,0.0f,
+     	0.0f,  0.5f, 0.0f,0.0f,1.0f
+	};
+
+	unsigned int testIndArray[]=
+	{
+		0,1,2
+	};
+	
+	VertexBuffer vb(testVerArray,sizeof(testVerArray));
+	VertexBufferLayout vbl;
+	vbl.push(GL_FLOAT,2,false);
+	vbl.push(GL_FLOAT,3,false);
+	
+	VertexArray va;
+	va.addBuffer(vb,vbl);
+	IndexBuffer ib(testIndArray,sizeof(testIndArray)/sizeof(testIndArray[0]));
+	Shader shad("shaders/basic.vert","shaders/basic.frag");
+	//Wireframe
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     while(!glfwWindowShouldClose(window))
     {
 		glClear(GL_COLOR_BUFFER_BIT);
+		va.bind();
+		ib.bind();
+		shad.bind();
+		glCheck(glDrawElements(GL_TRIANGLES, ib.getCount(), GL_UNSIGNED_INT, nullptr));
 		glfwSwapBuffers(window);
-		glfwWaitEvents();
+		glfwPollEvents();
     }
 
     glfwTerminate();

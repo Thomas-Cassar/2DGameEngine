@@ -1,4 +1,4 @@
-#include "VertexBufferLayout.hpp"
+#include "graphics/VertexBufferLayout.hpp"
 
 VertexBufferLayout::VertexBufferLayout()
 :stride(0)

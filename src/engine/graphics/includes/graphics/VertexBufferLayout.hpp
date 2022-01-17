@@ -1,5 +1,5 @@
 #pragma once 
-#include "Graphics.hpp"
+#include "graphics/Graphics.hpp"
 #include <vector>
 
 /** Struct used to represent an element in a VertexBuffer*/
