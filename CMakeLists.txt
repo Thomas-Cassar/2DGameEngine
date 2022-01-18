@@ -46,11 +46,17 @@ if(NOT glew-cmake_POPULATED)
     set(ONLY_LIBS ON)
 endif()
 
+#STB Image
+file(MAKE_DIRECTORY ${FETCHCONTENT_BASE_DIR}/stb/includes/stb)
+file(DOWNLOAD https://raw.githubusercontent.com/nothings/stb/master/stb_image.h ${FETCHCONTENT_BASE_DIR}/stb/includes/stb/stb_image.hpp)
+add_library(stb INTERFACE)
+target_include_directories(stb INTERFACE ${FETCHCONTENT_BASE_DIR}/stb/includes)
+
 #Graphics Lib
 file(GLOB GRAPHICS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/*.cpp)
 add_library(graphics ${GRAPHICS_SRCS})
 target_include_directories(graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/includes)
-target_link_libraries(graphics libglew_static)
+target_link_libraries(graphics libglew_static stb)
 
 #Link libs to main executable
 target_link_libraries(2DGameEngine glfw libglew_static graphics)
@@ -63,6 +69,15 @@ ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/shaders
 )
 file(COPY ${SHADER_SRCS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/shaders)
 file(COPY ${SHADER_SRCS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/shaders)
+
+#Add assets to build dir
+file(GLOB ASSET_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/assets/*)
+file(MAKE_DIRECTORY 
+${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/assets
+${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/assets
+)
+file(COPY ${ASSET_SRCS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/assets)
+file(COPY ${ASSET_SRCS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/assets)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
