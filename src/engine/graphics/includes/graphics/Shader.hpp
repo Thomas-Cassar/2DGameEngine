@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <unordered_map>
+#include "glm/glm.hpp"
 
 class Shader {
 private:
@@ -106,6 +107,14 @@ private:
      * @param f3 Float value to set uniform param 4 to
      */
 	void setUniform4f(const std::string& name, float v0, float v1, float f2, float f3);
+
+    /**
+     * @brief Set the Uniform Mat 4f
+     * 
+     * @param name Uniform name
+     * @param matrix Matrix to set uniform to
+     */
+    void SetUniformMat4f(const std::string& name, const glm::mat4& matrix);
 
     //****************************************************************
 

@@ -46,6 +46,19 @@ if(NOT glew-cmake_POPULATED)
     set(ONLY_LIBS ON)
 endif()
 
+#glm
+FetchContent_Declare(
+    glm
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+    GIT_TAG 0.9.9.8
+)
+
+FetchContent_MakeAvailable(glm)
+
+if(NOT glm_POPULATED)
+    FetchContent_Populate(glm)
+endif()
+
 #STB Image
 file(MAKE_DIRECTORY ${FETCHCONTENT_BASE_DIR}/stb/includes/stb)
 file(DOWNLOAD https://raw.githubusercontent.com/nothings/stb/master/stb_image.h ${FETCHCONTENT_BASE_DIR}/stb/includes/stb/stb_image.hpp)
@@ -56,10 +69,16 @@ target_include_directories(stb INTERFACE ${FETCHCONTENT_BASE_DIR}/stb/includes)
 file(GLOB GRAPHICS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/*.cpp)
 add_library(graphics ${GRAPHICS_SRCS})
 target_include_directories(graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/includes)
-target_link_libraries(graphics libglew_static stb)
+target_link_libraries(graphics libglew_static stb glm glfw)
+
+#Input Lib
+file(GLOB INPUT_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/input/*.cpp)
+add_library(input ${INPUT_SRCS})
+target_include_directories(input PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/input/includes)
+target_link_libraries(input glfw glm)
 
 #Link libs to main executable
-target_link_libraries(2DGameEngine glfw libglew_static graphics)
+target_link_libraries(2DGameEngine glfw libglew_static graphics input glm)
 
 #Add shaders to build dir
 file(GLOB SHADER_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/shaders/*)

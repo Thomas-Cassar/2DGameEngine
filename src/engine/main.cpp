@@ -8,6 +8,9 @@
 #include "graphics/VertexBufferLayout.hpp"
 #include "graphics/VertexArray.hpp"
 #include "graphics/Texture2D.hpp"
+#include "graphics/Camera.hpp"
+
+#include "input/Input.hpp"
 
 void error_callback(int error, const char* description)
 {
@@ -16,7 +19,7 @@ void error_callback(int error, const char* description)
 
 int main()
 {
-    
+{
 	glfwSetErrorCallback(error_callback);
     GLFWwindow* window;
 
@@ -40,6 +43,10 @@ int main()
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(0);
 
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	if (glfwRawMouseMotionSupported())
+    	glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+
 	//Test GLEW is working and output GL Version
 	if (glewInit() != GLEW_OK)
 		std::cout << "Error" << std::endl;
@@ -51,10 +58,10 @@ int main()
 	//Test code
 	float testVerArray[]=
 	{
-		-0.5f, -0.5f, 1.0f,0.0f,0.0f, 0.0f,0.0f,
-    	0.5f, -0.5f, 0.0f,1.0f,0.0f, 1.0f,0.0f,
-     	0.5f,  0.5f, 0.0f,0.0f,1.0f, 1.0f,1.0f,
-		-0.5f,  0.5f, 0.0f,0.0f,1.0f, 0.0f,1.0f
+		-1.0f, -1.0f,0.0f,		1.0f,0.0f,0.0f,		0.0f,0.0f,
+    	1.0f, -1.0f, 0.0f,		0.0f,1.0f,0.0f,		1.0f,0.0f,
+     	1.0f,  1.0f, 0.0f,		0.0f,0.0f,1.0f,		1.0f,1.0f,
+		-1.0f,  1.0f, 0.0f,		0.0f,0.0f,1.0f, 	0.0f,1.0f
 	};
 
 	unsigned int testIndArray[]=
@@ -65,7 +72,7 @@ int main()
 	
 	VertexBuffer vb(testVerArray,sizeof(testVerArray));
 	VertexBufferLayout vbl;
-	vbl.push(GL_FLOAT,2,false);
+	vbl.push(GL_FLOAT,3,false);
 	vbl.push(GL_FLOAT,3,false);
 	vbl.push(GL_FLOAT,2,false);
 	
@@ -76,6 +83,10 @@ int main()
 	shad.bind();
 	shad.setUniform1i("texture1",0);
 	Texture2D tex("assets/test.png");
+
+	Input input(window);
+	Camera camera(window);
+
 	//Wireframe
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     while(!glfwWindowShouldClose(window))
@@ -83,13 +94,30 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 		tex.bind();
 		shad.bind();
+		glm::mat4 mod=glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,0.0f,0.0f));
+		glm::mat4 mvp = camera.getProjMatrix() * camera.getViewMatrix() * mod;
+		shad.SetUniformMat4f("MVP",mvp);
 		va.bind();
 		ib.bind();
 		glCheck(glDrawElements(GL_TRIANGLES, ib.getCount(), GL_UNSIGNED_INT, nullptr));
 		glfwSwapBuffers(window);
-		glfwPollEvents();
+		input.updateInput();
+		//Test input handling
+		camera.turnCameraFromInput(input.getDeltaMousePos());
+		if(input.isKeyPressed(GLFW_KEY_W))
+			camera.moveForward(0.01f);
+		if(input.isKeyPressed(GLFW_KEY_S))
+			camera.moveForward(-0.01f);
+		if(input.isKeyPressed(GLFW_KEY_D))
+			camera.moveRight(0.01f);
+		if(input.isKeyPressed(GLFW_KEY_A))
+			camera.moveRight(-0.01f);
+		if(input.isKeyPressed(GLFW_KEY_E))
+			camera.moveY(0.01f);
+		if(input.isKeyPressed(GLFW_KEY_Q))
+			camera.moveY(-0.01f);
     }
-
+}
     glfwTerminate();
 
     return 0;
