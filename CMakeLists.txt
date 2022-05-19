@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(2DGameEngine VERSION 0.1.0)
 
+
+if(WIN32)
+set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/windows/${CMAKE_GENERATOR_PLATFORM})
+elseif(UNIX)
+set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/linux/${CMAKE_GENERATOR_PLATFORM})
+else()
+set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/other/${CMAKE_GENERATOR_PLATFORM})
+endif()
+
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -77,8 +86,14 @@ add_library(input ${INPUT_SRCS})
 target_include_directories(input PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/input/includes)
 target_link_libraries(input glfw glm)
 
+#Object Lib
+file(GLOB OBJECT_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/object/*.cpp)
+add_library(object ${OBJECT_SRCS})
+target_include_directories(object PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/object/includes)
+target_link_libraries(object glm)
+
 #Link libs to main executable
-target_link_libraries(2DGameEngine glfw libglew_static graphics input glm)
+target_link_libraries(2DGameEngine glfw libglew_static graphics input glm object)
 
 #Add shaders to build dir
 file(GLOB SHADER_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/shaders/*)

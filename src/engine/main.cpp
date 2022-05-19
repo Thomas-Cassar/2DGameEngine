@@ -12,6 +12,9 @@
 
 #include "input/Input.hpp"
 
+#include "object/ObjectManager.hpp"
+#include "object/Actor.hpp"
+
 void error_callback(int error, const char* description)
 {
 	std::cerr<<"Error: "<<description<<std::endl;
@@ -58,10 +61,10 @@ int main()
 	//Test code
 	float testVerArray[]=
 	{
-		-1.0f, -1.0f,0.0f,		1.0f,0.0f,0.0f,		0.0f,0.0f,
-    	1.0f, -1.0f, 0.0f,		0.0f,1.0f,0.0f,		1.0f,0.0f,
-     	1.0f,  1.0f, 0.0f,		0.0f,0.0f,1.0f,		1.0f,1.0f,
-		-1.0f,  1.0f, 0.0f,		0.0f,0.0f,1.0f, 	0.0f,1.0f
+		-1.0f, -1.0f,0.0f,		0.0f,0.0f,
+    	1.0f, -1.0f, 0.0f,		1.0f,0.0f,
+     	1.0f,  1.0f, 0.0f,		1.0f,1.0f,
+		-1.0f,  1.0f, 0.0f,		0.0f,1.0f
 	};
 
 	unsigned int testIndArray[]=
@@ -72,7 +75,6 @@ int main()
 	
 	VertexBuffer vb(testVerArray,sizeof(testVerArray));
 	VertexBufferLayout vbl;
-	vbl.push(GL_FLOAT,3,false);
 	vbl.push(GL_FLOAT,3,false);
 	vbl.push(GL_FLOAT,2,false);
 	
@@ -86,6 +88,9 @@ int main()
 
 	Input input(window);
 	Camera camera(window);
+	ObjectManager objManager;
+	Actor* testActor=new Actor(true);
+	objManager.registerObject(testActor);
 
 	//Wireframe
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -94,8 +99,8 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 		tex.bind();
 		shad.bind();
-		glm::mat4 mod=glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,0.0f,0.0f));
-		glm::mat4 mvp = camera.getProjMatrix() * camera.getViewMatrix() * mod;
+		testActor->setYaw(testActor->getYaw()+0.1f);
+		glm::mat4 mvp = camera.getProjMatrix() * camera.getViewMatrix() * testActor->getModelMatrix();
 		shad.SetUniformMat4f("MVP",mvp);
 		va.bind();
 		ib.bind();
@@ -117,6 +122,7 @@ int main()
 		if(input.isKeyPressed(GLFW_KEY_Q))
 			camera.moveY(-0.01f);
     }
+	objManager.deleteObject(testActor);
 }
     glfwTerminate();
 
