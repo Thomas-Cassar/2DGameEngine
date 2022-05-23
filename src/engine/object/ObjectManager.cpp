@@ -20,11 +20,26 @@ void ObjectManager::tickObjects()
         (*it)->objectTick();
     }
 }
+
+void ObjectManager::renderRenderables(glm::mat4 projectionViewMatrix)
+{
+    for(auto it=renderables.begin();it!=renderables.end();it++)
+    {
+        if((*it)->getVisible())
+            (*it)->render(projectionViewMatrix);
+    }
+}
+
 void ObjectManager::registerObject(Object* obj)
 {
     aliveObjects.push_back(obj);
     if(obj->getDoesObjectTick())
         tickingObjects.push_back(obj);
+    Renderable* renderableObject = dynamic_cast<Renderable*>(obj);
+    if(renderableObject!=nullptr)
+    {
+        renderables.push_back(renderableObject);
+    }
 }
 void ObjectManager::deleteObject(Object* obj)
 {
@@ -41,6 +56,14 @@ void ObjectManager::deleteObject(Object* obj)
         if((*it)==obj)
         {
             tickingObjects.erase(it);
+            break;
+        }
+    }
+    for(auto it=renderables.begin();it!=renderables.end();it++)
+    {
+        if((*it)==obj)
+        {
+            renderables.erase(it);
             break;
         }
     }

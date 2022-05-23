@@ -15,6 +15,8 @@
 #include "object/ObjectManager.hpp"
 #include "object/Actor.hpp"
 
+#include "renderable/Plane2D.hpp"
+
 void error_callback(int error, const char* description)
 {
 	std::cerr<<"Error: "<<description<<std::endl;
@@ -58,54 +60,24 @@ int main()
 	//Set clear color
 	glClearColor(0.5f,1.0f,1.0f,1.0f);
 
-	//Test code
-	float testVerArray[]=
-	{
-		-1.0f, -1.0f,0.0f,		0.0f,0.0f,
-    	1.0f, -1.0f, 0.0f,		1.0f,0.0f,
-     	1.0f,  1.0f, 0.0f,		1.0f,1.0f,
-		-1.0f,  1.0f, 0.0f,		0.0f,1.0f
-	};
-
-	unsigned int testIndArray[]=
-	{
-		0,1,2,
-		0,2,3
-	};
-	
-	VertexBuffer vb(testVerArray,sizeof(testVerArray));
-	VertexBufferLayout vbl;
-	vbl.push(GL_FLOAT,3,false);
-	vbl.push(GL_FLOAT,2,false);
-	
-	VertexArray va;
-	va.addBuffer(vb,vbl);
-	IndexBuffer ib(testIndArray,sizeof(testIndArray)/sizeof(testIndArray[0]));
-	Shader shad("shaders/basic.vert","shaders/basic.frag");
-	shad.bind();
-	shad.setUniform1i("texture1",0);
-	Texture2D tex("assets/test.png");
-
 	Input input(window);
 	Camera camera(window);
 	ObjectManager objManager;
-	Actor* testActor=new Actor(true);
-	objManager.registerObject(testActor);
+	Plane2D* testTexturedPlane=new Plane2D(true,5.0f,5.0f,"assets/test.png");
+	objManager.registerObject(testTexturedPlane);
+	Plane2D* testColoredPlane= new Plane2D(true,1.0f,1.0f,glm::vec3(0.5f,0.8f,1.0f));
+	objManager.registerObject(testColoredPlane);
 
 	//Wireframe
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     while(!glfwWindowShouldClose(window))
     {
 		glClear(GL_COLOR_BUFFER_BIT);
-		tex.bind();
-		shad.bind();
-		testActor->setYaw(testActor->getYaw()+0.1f);
-		glm::mat4 mvp = camera.getProjMatrix() * camera.getViewMatrix() * testActor->getModelMatrix();
-		shad.SetUniformMat4f("MVP",mvp);
-		va.bind();
-		ib.bind();
-		glCheck(glDrawElements(GL_TRIANGLES, ib.getCount(), GL_UNSIGNED_INT, nullptr));
+		testTexturedPlane->setYaw(testTexturedPlane->getYaw()+0.1f);
+		testColoredPlane->setTranslation(glm::vec3(fmod(testColoredPlane->getTranslation().x+0.001f,5.0f),testColoredPlane->getTranslation().y,testColoredPlane->getTranslation().z));
+		objManager.renderRenderables(camera.getProjMatrix()*camera.getViewMatrix());
 		glfwSwapBuffers(window);
+		
 		input.updateInput();
 		//Test input handling
 		camera.turnCameraFromInput(input.getDeltaMousePos());
@@ -122,7 +94,6 @@ int main()
 		if(input.isKeyPressed(GLFW_KEY_Q))
 			camera.moveY(-0.01f);
     }
-	objManager.deleteObject(testActor);
 }
     glfwTerminate();
 
