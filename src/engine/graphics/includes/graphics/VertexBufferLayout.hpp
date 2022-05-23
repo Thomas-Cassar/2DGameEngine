@@ -38,7 +38,7 @@ struct VertexBufferElement
             return 8;
 
             default:
-            assert(false);
+            myAssert(false);
             return 0;
         }
     }

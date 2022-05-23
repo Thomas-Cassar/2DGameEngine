@@ -41,7 +41,7 @@ unsigned int Shader::compileShader(unsigned int type, const std::string filePath
     if(file.fail())
     {
         std::cerr<<"Could not find shader file \""<<filePath<<"\""<<std::endl;
-        assert(false);
+        myAssert(false);
     }
     //Get filesize and create string of that size
     file.seekg(0,std::ios::end);
@@ -69,7 +69,7 @@ unsigned int Shader::compileShader(unsigned int type, const std::string filePath
 		std::cout << "Failed to compile " << (type == GL_VERTEX_SHADER ? "Vertex" : "fragment") << std::endl;
 		std::cout << compileMessage << std::endl;
 		glDeleteShader(shadID);
-		assert(false);
+		myAssert(false);
     }
 
     file.close();
@@ -101,7 +101,7 @@ int Shader::getUniformLocation(const std::string& name)
     if(location==-1)
     {
         std::cerr<<"Uniform "<<name<<" does not exist"<<std::endl;
-        assert(false);
+        myAssert(false);
     }
 
     //Cache location
