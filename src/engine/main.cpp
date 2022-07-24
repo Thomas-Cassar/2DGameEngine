@@ -12,10 +12,11 @@
 
 #include "input/Input.hpp"
 
-#include "object/ObjectManager.hpp"
-#include "object/Actor.hpp"
+#include "entity_component/EntityManager.hpp"
+#include "entity_component/Actor.hpp"
 
 #include "renderable/Plane2D.hpp"
+#include "renderable/RenderableManager.hpp"
 
 void error_callback(int error, const char* description)
 {
@@ -62,11 +63,12 @@ int main()
 
 	Input input(window);
 	Camera camera(window);
-	ObjectManager objManager;
-	Plane2D* testTexturedPlane=new Plane2D(true,5.0f,5.0f,"assets/test.png");
-	objManager.registerObject(testTexturedPlane);
-	Plane2D* testColoredPlane= new Plane2D(true,1.0f,1.0f,glm::vec3(0.5f,0.8f,1.0f));
-	objManager.registerObject(testColoredPlane);
+	EntityManager objManager;
+	RenderableManager rendManager;
+	std::shared_ptr<Plane2D> testTexturedPlane{objManager.registerEntity<Plane2D>(5.0f,5.0f,"assets/test.png")};
+	std::shared_ptr<Plane2D> testColoredPlane{objManager.registerEntity<Plane2D>(1.0f,1.0f,glm::vec3(0.5f,0.8f,1.0f))};
+	rendManager.registerRenderable(testTexturedPlane);
+	rendManager.registerRenderable(testColoredPlane);
 
 	//Wireframe
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -75,7 +77,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 		testTexturedPlane->setYaw(testTexturedPlane->getYaw()+0.1f);
 		testColoredPlane->setTranslation(glm::vec3(fmod(testColoredPlane->getTranslation().x+0.001f,5.0f),testColoredPlane->getTranslation().y,testColoredPlane->getTranslation().z));
-		objManager.renderRenderables(camera.getProjMatrix()*camera.getViewMatrix());
+		rendManager.renderRenderables(camera.getProjMatrix()*camera.getViewMatrix());
 		glfwSwapBuffers(window);
 		
 		input.updateInput();

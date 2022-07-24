@@ -1,15 +1,8 @@
-#include "object/Actor.hpp"
+#include "entity_component/Actor.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-Actor::Actor(bool doesTick)
-:Object(doesTick)
+Actor::Actor()
 {
-
-}
-
-void Actor::objectTick()
-{
-    
 }
 
 glm::vec3 Actor::getTranslation()
@@ -18,7 +11,7 @@ glm::vec3 Actor::getTranslation()
 }
 void Actor::setTranslation(glm::vec3 translation)
 {
-    this->translation=translation;
+    this->translation = translation;
 }
 glm::vec3 Actor::getRotation()
 {
@@ -26,7 +19,7 @@ glm::vec3 Actor::getRotation()
 }
 void Actor::setRotation(glm::vec3 rotation)
 {
-    this->rotation=rotation;
+    this->rotation = rotation;
 }
 
 float Actor::getPitch()
@@ -35,7 +28,7 @@ float Actor::getPitch()
 }
 void Actor::setPitch(float pitch)
 {
-    rotation.x=pitch;
+    rotation.x = pitch;
 }
 float Actor::getYaw()
 {
@@ -43,7 +36,7 @@ float Actor::getYaw()
 }
 void Actor::setYaw(float yaw)
 {
-    rotation.y=yaw;
+    rotation.y = yaw;
 }
 float Actor::getRoll()
 {
@@ -51,15 +44,15 @@ float Actor::getRoll()
 }
 void Actor::setRoll(float roll)
 {
-    rotation.z=roll;
+    rotation.z = roll;
 }
 
 glm::mat4 Actor::getModelMatrix()
 {
-    glm::mat4 mod=glm::translate(glm::mat4(1.0f),translation);
-    mod=glm::rotate(mod,glm::radians(getYaw()),glm::vec3(0.0f,1.0f,0.0f));
-    mod=glm::rotate(mod,glm::radians(getPitch()),glm::vec3(1.0f,0.0f,0.0f));
-    mod=glm::rotate(mod,glm::radians(getRoll()),glm::vec3(0.0f,0.0f,1.0f));
+    glm::mat4 mod = glm::translate(glm::mat4(1.0f), translation);
+    mod = glm::rotate(mod, glm::radians(getYaw()), glm::vec3(0.0f, 1.0f, 0.0f));
+    mod = glm::rotate(mod, glm::radians(getPitch()), glm::vec3(1.0f, 0.0f, 0.0f));
+    mod = glm::rotate(mod, glm::radians(getRoll()), glm::vec3(0.0f, 0.0f, 1.0f));
 
     return mod;
 }

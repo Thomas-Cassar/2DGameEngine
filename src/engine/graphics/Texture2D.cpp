@@ -11,7 +11,7 @@ Texture2D::Texture2D(const std::string& filePath)
     if(data==nullptr)
     {
         std::cerr<<"Failed to load texture "<<filePath<<std::endl;
-        myAssert(false);
+        engineAssert(false);
     }
     //Create texture
     glCheck(glGenTextures(1,&texture2DID));

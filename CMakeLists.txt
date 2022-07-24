@@ -86,20 +86,20 @@ add_library(input ${INPUT_SRCS})
 target_include_directories(input PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/input/includes)
 target_link_libraries(input glfw glm)
 
-#Object Lib
-file(GLOB OBJECT_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/object/*.cpp)
-add_library(object ${OBJECT_SRCS})
-target_include_directories(object PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/object/includes)
-target_link_libraries(object glm renderable)
+#entity_component Lib
+file(GLOB ENTITY_COMPONENT_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/entity_component/*.cpp)
+add_library(entity_component ${ENTITY_COMPONENT_SRCS})
+target_include_directories(entity_component PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/entity_component/includes)
+target_link_libraries(entity_component glm)
 
 #Renderable Lib
 file(GLOB RENDERABLE_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/renderable/*.cpp)
 add_library(renderable ${RENDERABLE_SRCS})
 target_include_directories(renderable PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/renderable/includes)
-target_link_libraries(renderable object graphics glm libglew_static)
+target_link_libraries(renderable entity_component graphics glm libglew_static)
 
 #Link libs to main executable
-target_link_libraries(2DGameEngine glfw libglew_static graphics input glm object renderable)
+target_link_libraries(2DGameEngine glfw libglew_static graphics input glm entity_component renderable)
 
 #Add shaders to build dir
 file(GLOB SHADER_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/shaders/*)

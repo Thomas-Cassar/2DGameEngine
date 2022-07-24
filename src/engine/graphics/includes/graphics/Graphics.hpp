@@ -3,18 +3,18 @@
 #include <iostream>
 
 /**
- * @brief If myAssert returns false the program breaks
+ * @brief If engineAssert returns false the program breaks
  */
 #ifdef __linux__
-#define myAssert(x)\
+#define engineAssert(x)\
     if(!(x))\
         __builtin_trap();
 #elif _WIN32
-#define myAssert(x)\
+#define engineAssert(x)\
     if(!(x))\
     __debugbreak();
 #else
-    #define myAssert(x)\
+    #define engineAssert(x)\
     if(!(x))\
         exit(1);
 #endif
@@ -27,7 +27,7 @@
 #define glCheck(x)\
     glClearErrors();\
     x;\
-    myAssert(glLogErrors(#x,__FILE__,__LINE__))
+    engineAssert(glLogErrors(#x,__FILE__,__LINE__))
 
 /**
  * @brief Clears Previous OpenGL Errors

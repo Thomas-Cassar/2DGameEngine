@@ -19,8 +19,6 @@ private:
     glm::dvec2 prevMousePos=glm::dvec2(0.0,0.0);
     /**Change in mouse position since last update */
     glm::dvec2 deltaMousePos=glm::dvec2(0.0,0.0);
-    /**Map storing the state of the keys */
-    std::unordered_map<int,int> keyStates;
 
 public:
 
