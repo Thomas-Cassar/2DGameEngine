@@ -4,8 +4,7 @@
 
 class RenderableManager;
 
-class Renderable : public Actor
-{
+class Renderable : public Actor {
 public:
     virtual void render(glm::mat4 projectionViewMatrix) = 0;
     void setVisible(bool visible);

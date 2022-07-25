@@ -74,32 +74,44 @@ file(DOWNLOAD https://raw.githubusercontent.com/nothings/stb/master/stb_image.h 
 add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE ${FETCHCONTENT_BASE_DIR}/stb/includes)
 
+#Core Lib
+file(GLOB CORE_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/core/*.cpp)
+add_library(core ${CORE_SRCS})
+target_include_directories(core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/core/includes)
+target_link_libraries(core)
+
 #Graphics Lib
 file(GLOB GRAPHICS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/*.cpp)
 add_library(graphics ${GRAPHICS_SRCS})
 target_include_directories(graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/includes)
-target_link_libraries(graphics libglew_static stb glm glfw)
+target_link_libraries(graphics core libglew_static stb glm glfw)
 
 #Input Lib
 file(GLOB INPUT_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/input/*.cpp)
 add_library(input ${INPUT_SRCS})
 target_include_directories(input PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/input/includes)
-target_link_libraries(input glfw glm)
+target_link_libraries(input core glfw glm)
 
 #entity_component Lib
 file(GLOB ENTITY_COMPONENT_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/entity_component/*.cpp)
 add_library(entity_component ${ENTITY_COMPONENT_SRCS})
 target_include_directories(entity_component PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/entity_component/includes)
-target_link_libraries(entity_component glm)
+target_link_libraries(entity_component core)
+
+#system Lib
+file(GLOB SYSTEM_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/system/*.cpp)
+add_library(system ${SYSTEM_SRCS})
+target_include_directories(system PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/system/includes)
+target_link_libraries(system core)
 
 #Renderable Lib
 file(GLOB RENDERABLE_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/renderable/*.cpp)
 add_library(renderable ${RENDERABLE_SRCS})
 target_include_directories(renderable PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/renderable/includes)
-target_link_libraries(renderable entity_component graphics glm libglew_static)
+target_link_libraries(renderable core entity_component graphics glm libglew_static)
 
 #Link libs to main executable
-target_link_libraries(2DGameEngine glfw libglew_static graphics input glm entity_component renderable)
+target_link_libraries(2DGameEngine glfw libglew_static graphics input glm entity_component renderable core system)
 
 #Add shaders to build dir
 file(GLOB SHADER_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/shaders/*)

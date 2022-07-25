@@ -1,11 +1,4 @@
 #pragma once
+#include "entity_component/IdGenerator.hpp"
 
-class EntityManager;
-
-class Entity
-{
-public:
-    Entity() = default;
-    virtual ~Entity() = default;
-
-};
+using Entity = Id;

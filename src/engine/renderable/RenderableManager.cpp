@@ -7,9 +7,9 @@ void RenderableManager::registerRenderable(std::shared_ptr<Renderable> renderabl
 
 void RenderableManager::renderRenderables(glm::mat4 projectionViewMatrix)
 {
-    for(auto& renderable : renderables)
+    for (auto &renderable : renderables)
     {
-        if(renderable->getVisible())
+        if (renderable->getVisible())
         {
             renderable->render(projectionViewMatrix);
         }

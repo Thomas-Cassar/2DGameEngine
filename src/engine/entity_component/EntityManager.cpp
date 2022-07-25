@@ -1,10 +1,15 @@
 #include "entity_component/EntityManager.hpp"
 
-void EntityManager::removeEntity(std::shared_ptr<Entity> const& entity)
+Entity EntityManager::createEntity()
 {
-    for(auto& it{std::begin(aliveEntities)};it!=std::end(aliveEntities);++it)
+    /// TODO: Keep track of Ids?
+    return idGenerator.getNewId();
+}
+
+void EntityManager::destroyEntity(Entity entity)
+{
+    for (auto &componentStore : componentStores)
     {
-        if(entity==*it)
-            aliveEntities.erase(it);
+        componentStore->destroyComponent(entity);
     }
 }

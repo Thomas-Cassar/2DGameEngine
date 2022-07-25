@@ -11,13 +11,14 @@ private:
     int height;
     /**Number of color channels**/
     int numChannels;
+
 public:
     /**
      * @brief Construct a new Texture2D object
-     * 
+     *
      * @param filePath The filepath to the texture
      */
-    Texture2D(const std::string& filePath);
+    Texture2D(const std::string &filePath);
     /**
      * @brief Destroy the Texture2D object
      */
@@ -30,5 +31,4 @@ public:
      * @brief Unbinds the current Texture2D
      */
     void unbind();
-
 };
