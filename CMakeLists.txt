@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(2DGameEngine VERSION 0.1.0)
 
+# Compile with C++ 17
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+# Needed for MSVC
+set(CMAKE_CXX_STANDARD 17)
 
 if(WIN32)
 set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/windows/${CMAKE_GENERATOR_PLATFORM})
@@ -86,36 +90,30 @@ add_library(graphics ${GRAPHICS_SRCS})
 target_include_directories(graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/includes)
 target_link_libraries(graphics core libglew_static stb glm glfw)
 
-#Input Lib
-file(GLOB INPUT_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/input/*.cpp)
-add_library(input ${INPUT_SRCS})
-target_include_directories(input PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/input/includes)
-target_link_libraries(input core glfw glm)
+#entity_component_system Lib
+file(GLOB ECS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/ecs/*.cpp)
+add_library(ecs ${ECS_SRCS})
+target_include_directories(ecs PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/ecs/includes)
+target_link_libraries(ecs core)
 
-#entity_component Lib
-file(GLOB ENTITY_COMPONENT_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/entity_component/*.cpp)
-add_library(entity_component ${ENTITY_COMPONENT_SRCS})
-target_include_directories(entity_component PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/entity_component/includes)
-target_link_libraries(entity_component core)
+#Components Lib
+file(GLOB COMPONENTS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/components/*.cpp)
+add_library(components ${COMPONENTS_SRCS})
+target_include_directories(components PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/components/includes)
+target_link_libraries(components core glm ecs graphics)
 
-#system Lib
-file(GLOB SYSTEM_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/system/*.cpp)
-add_library(system ${SYSTEM_SRCS})
-target_include_directories(system PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/system/includes)
-target_link_libraries(system core)
-
-#Renderable Lib
-file(GLOB RENDERABLE_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/renderable/*.cpp)
-add_library(renderable ${RENDERABLE_SRCS})
-target_include_directories(renderable PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/renderable/includes)
-target_link_libraries(renderable core entity_component graphics glm libglew_static)
+#Systems Lib
+file(GLOB SYSTEMS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/systems/*.cpp)
+add_library(systems ${SYSTEMS_SRCS})
+target_include_directories(systems PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/systems/includes)
+target_link_libraries(systems core glm components ecs)
 
 #Link libs to main executable
-target_link_libraries(2DGameEngine glfw libglew_static graphics input glm entity_component renderable core system)
+target_link_libraries(2DGameEngine glfw libglew_static graphics glm ecs core systems)
 
 #Add shaders to build dir
 file(GLOB SHADER_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/shaders/*)
-file(MAKE_DIRECTORY 
+file(MAKE_DIRECTORY
 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/shaders
 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/shaders
 )
@@ -124,7 +122,7 @@ file(COPY ${SHADER_SRCS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/s
 
 #Add assets to build dir
 file(GLOB ASSET_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/assets/*)
-file(MAKE_DIRECTORY 
+file(MAKE_DIRECTORY
 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/assets
 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/assets
 )

@@ -3,14 +3,18 @@ IndentWidth: 4
 TabWidth: 4
 AccessModifierOffset: -4
 
+PointerAlignment: Left
+
 SeparateDefinitionBlocks: Always
+
+AlwaysBreakTemplateDeclarations: Yes
 
 BraceWrapping:
     AfterClass:      false
     AfterControlStatement: true
     AfterEnum:       false
     AfterFunction:   true
-    AfterNamespace:  false
+    AfterNamespace:  true
     AfterObjCDeclaration: true
     AfterStruct:     false
     AfterUnion:      false
