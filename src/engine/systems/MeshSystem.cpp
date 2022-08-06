@@ -17,28 +17,33 @@ void MeshSystem::update(EntityManager& manager)
     manager.forEachComponent<CameraComponent, TranslationComponent>(forEachCamera);
 
     // Render every mesh
-    ComponentForEachFn<MeshComponent> const forEachMesh{[&manager, &projectionViewMatrix](Entity entity,
-                                                                                          MeshComponent& component) {
-        if (component.vertexBuffer == nullptr || component.vertexBufferLayout == nullptr ||
-            component.vertexArray == nullptr || component.indexBuffer == nullptr || component.shader == nullptr)
-        {
+    ComponentForEachFn<MeshComponent> const forEachMesh{
+        [&manager, &projectionViewMatrix](Entity entity, MeshComponent& component) {
+            if (component.vertexBuffer == nullptr || component.vertexBufferLayout == nullptr ||
+                component.vertexArray == nullptr || component.indexBuffer == nullptr || component.shader == nullptr)
+            {
+                return true;
+            }
+            component.shader->bind();
+            TranslationComponent& translation{manager.getComponent<TranslationComponent>(entity)};
+            glm::mat4 modelMat{glm::translate(glm::mat4(1.0F), translation.position)};
+            modelMat = glm::rotate(modelMat, glm::radians(translation.rotation.x), {1.0F, 0.0F, 0.0F});
+            modelMat = glm::rotate(modelMat, glm::radians(translation.rotation.y), {0.0F, 1.0F, 0.0F});
+            modelMat = glm::rotate(modelMat, glm::radians(translation.rotation.z), {0.0F, 0.0F, 1.0F});
+            glm::mat4 mvp = projectionViewMatrix * modelMat;
+            component.shader->SetUniformMat4f("MVP", mvp);
+
+            component.vertexArray->bind();
+            component.indexBuffer->bind();
+
+            if (manager.hasComponents<TextureComponent>(entity))
+            {
+                manager.getComponent<TextureComponent>(entity).tex->bind();
+            }
+
+            glCheck(glDrawElements(GL_TRIANGLES, component.indexBuffer->getCount(), GL_UNSIGNED_INT, nullptr));
             return true;
-        }
-        component.shader->bind();
-        glm::mat4 mvp = projectionViewMatrix *
-                        glm::translate(glm::mat4(1.0F), manager.getComponent<TranslationComponent>(entity).position);
-        component.shader->SetUniformMat4f("MVP", mvp);
-        component.vertexArray->bind();
-        component.indexBuffer->bind();
-
-        if (manager.hasComponents<TextureComponent>(entity))
-        {
-            manager.getComponent<TextureComponent>(entity).tex->bind();
-        }
-
-        glCheck(glDrawElements(GL_TRIANGLES, component.indexBuffer->getCount(), GL_UNSIGNED_INT, nullptr));
-        return true;
-    }};
+        }};
     manager.forEachComponent<MeshComponent, TranslationComponent>(forEachMesh);
 }
 

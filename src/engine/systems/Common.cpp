@@ -3,6 +3,7 @@
 
 #include "systems/CameraSystem.hpp"
 #include "systems/InputSystem.hpp"
+#include "systems/TestSystem.hpp"
 
 void registerSystems(SystemManager& manager)
 {
@@ -10,4 +11,5 @@ void registerSystems(SystemManager& manager)
     manager.registerSystem<InputSystem>();
     manager.registerSystem<CameraSystem>();
     manager.registerSystem<MeshSystem>();
+    manager.registerSystem<TestSystem>();
 }

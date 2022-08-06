@@ -32,16 +32,19 @@ void CameraSystem::update(EntityManager& manager)
         updateCameraProjectionMatrix(camera, kFov, static_cast<float>(width), static_cast<float>(height));
 
         TranslationComponent& translation{manager.getComponent<TranslationComponent>(entity)};
-        turnCameraFromInput(camera, translation, input->deltaMousePos);
+        if (input->mouseLock)
+        {
+            turnCameraFromInput(camera, translation, input->deltaMousePos);
+        }
 
         // Update camera position
-        if (InputSystem::isKeyPressed(*input, GLFW_KEY_W))
+        if (InputSystem::isKeyPressedDown(*input, GLFW_KEY_W))
             moveForward(camera, translation, 0.01f);
-        if (InputSystem::isKeyPressed(*input, GLFW_KEY_S))
+        if (InputSystem::isKeyPressedDown(*input, GLFW_KEY_S))
             moveForward(camera, translation, -0.01f);
-        if (InputSystem::isKeyPressed(*input, GLFW_KEY_D))
+        if (InputSystem::isKeyPressedDown(*input, GLFW_KEY_D))
             moveRight(camera, translation, 0.01f);
-        if (InputSystem::isKeyPressed(*input, GLFW_KEY_A))
+        if (InputSystem::isKeyPressedDown(*input, GLFW_KEY_A))
             moveRight(camera, translation, -0.01f);
         return true;
     }};
