@@ -10,6 +10,9 @@
 
 #define RESERVED_COMPONENT_STORES 128
 
+template <typename T, typename... Args>
+using ComponentsForEachFn = std::function<bool(Entity, T&, Args&...)>;
+
 class EntityManager {
 public:
     EntityManager() noexcept;
@@ -57,7 +60,7 @@ public:
     }
 
     template <typename T, typename... Args>
-    bool forEachComponent(ComponentForEachFn<T> forEachFn)
+    bool forEachComponents(ComponentsForEachFn<T, Args...> forEachFn)
     {
         std::shared_ptr<ComponentStore<T>> componentStore{getComponentStore<T>()};
         if (componentStore == nullptr)
@@ -68,7 +71,7 @@ public:
         ComponentForEachFn<T> const checkedForEachFn{[this, &forEachFn](Entity entity, T& component) {
             if (hasComponents<Args...>(entity))
             {
-                return forEachFn(entity, component);
+                return forEachFn(entity, component, getComponent<Args>(entity)...);
             }
             return true;
         }};

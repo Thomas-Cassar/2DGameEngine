@@ -7,7 +7,7 @@
 #include <vector>
 
 template <typename T>
-using ComponentForEachFn = std::function<bool(Entity entity, T&)>;
+using ComponentForEachFn = std::function<bool(Entity, T&)>;
 
 template <typename T>
 class ComponentStore : public IComponentStore {

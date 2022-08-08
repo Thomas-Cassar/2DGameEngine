@@ -14,41 +14,41 @@ constexpr float kPitchMax{89.99F};
 void CameraSystem::update(EntityManager& manager)
 {
     InputComponent const* input;
-    ComponentForEachFn<InputComponent> const forEachInput{[&input](Entity entity, InputComponent& InputComponent) {
+    ComponentsForEachFn<InputComponent> const forEachInput{[&input](Entity entity, InputComponent& InputComponent) {
         input = &InputComponent;
         // Only one input component for now return immediately
         return false;
     }};
-    manager.forEachComponent<InputComponent>(forEachInput);
+    manager.forEachComponents<InputComponent>(forEachInput);
 
-    ComponentForEachFn<CameraComponent> const forEachCamera{[&manager, &input](Entity entity, CameraComponent& camera) {
-        if (input == nullptr)
-        {
-            return false;
-        }
+    ComponentsForEachFn<CameraComponent, TranslationComponent> const forEachCamera{
+        [&manager, &input](Entity entity, CameraComponent& camera, TranslationComponent& translation) {
+            if (input == nullptr)
+            {
+                return false;
+            }
 
-        int width, height;
-        glfwGetWindowSize(input->windowPtr, &width, &height);
-        updateCameraProjectionMatrix(camera, kFov, static_cast<float>(width), static_cast<float>(height));
+            int width, height;
+            glfwGetWindowSize(input->windowPtr, &width, &height);
+            updateCameraProjectionMatrix(camera, kFov, static_cast<float>(width), static_cast<float>(height));
 
-        TranslationComponent& translation{manager.getComponent<TranslationComponent>(entity)};
-        if (input->mouseLock)
-        {
-            turnCameraFromInput(camera, translation, input->deltaMousePos);
-        }
+            if (input->mouseLock)
+            {
+                turnCameraFromInput(camera, translation, input->deltaMousePos);
+            }
 
-        // Update camera position
-        if (InputSystem::isKeyPressedDown(*input, GLFW_KEY_W))
-            moveForward(camera, translation, 0.01f);
-        if (InputSystem::isKeyPressedDown(*input, GLFW_KEY_S))
-            moveForward(camera, translation, -0.01f);
-        if (InputSystem::isKeyPressedDown(*input, GLFW_KEY_D))
-            moveRight(camera, translation, 0.01f);
-        if (InputSystem::isKeyPressedDown(*input, GLFW_KEY_A))
-            moveRight(camera, translation, -0.01f);
-        return true;
-    }};
-    manager.forEachComponent<CameraComponent, TranslationComponent>(forEachCamera);
+            // Update camera position
+            if (InputSystem::isKeyPressedDown(*input, GLFW_KEY_W))
+                moveForward(camera, translation, 0.01f);
+            if (InputSystem::isKeyPressedDown(*input, GLFW_KEY_S))
+                moveForward(camera, translation, -0.01f);
+            if (InputSystem::isKeyPressedDown(*input, GLFW_KEY_D))
+                moveRight(camera, translation, 0.01f);
+            if (InputSystem::isKeyPressedDown(*input, GLFW_KEY_A))
+                moveRight(camera, translation, -0.01f);
+            return true;
+        }};
+    manager.forEachComponents<CameraComponent, TranslationComponent>(forEachCamera);
 }
 
 void CameraSystem::moveForward(CameraComponent const& camera, TranslationComponent& translation, float distance)

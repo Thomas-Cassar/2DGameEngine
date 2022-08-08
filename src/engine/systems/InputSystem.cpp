@@ -8,7 +8,7 @@ void InputSystem::update(EntityManager& manager)
     // Clear previous callbacks
     glfwPollEvents();
 
-    ComponentForEachFn<InputComponent> const forEachInput{[](Entity entity, InputComponent& input) {
+    ComponentsForEachFn<InputComponent> const forEachInput{[](Entity entity, InputComponent& input) {
         input.prevMousePos = input.mousePos;
         glfwGetCursorPos(input.windowPtr, &input.mousePos.x, &input.mousePos.y);
         input.deltaMousePos.x = input.mousePos.x - input.prevMousePos.x;
@@ -42,7 +42,7 @@ void InputSystem::update(EntityManager& manager)
         // Only one input component for now return immediately
         return false;
     }};
-    manager.forEachComponent<InputComponent>(forEachInput);
+    manager.forEachComponents<InputComponent>(forEachInput);
 }
 
 bool InputSystem::isKeyPressedDown(InputComponent const& input, int key)

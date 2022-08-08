@@ -7,25 +7,23 @@ void MeshSystem::update(EntityManager& manager)
 {
     // Get projection*view matrix from the first camera available
     glm::mat4 projectionViewMatrix;
-    ComponentForEachFn<CameraComponent> const forEachCamera{
-        [&manager, &projectionViewMatrix](Entity entity, CameraComponent& cam) {
-            TranslationComponent& translation{manager.getComponent<TranslationComponent>(entity)};
+    ComponentsForEachFn<CameraComponent, TranslationComponent> const forEachCamera{
+        [&manager, &projectionViewMatrix](Entity entity, CameraComponent& cam, TranslationComponent& translation) {
             projectionViewMatrix =
                 cam.proj * glm::lookAt(translation.position, cam.cameraFront + translation.position, cam.cameraUp);
             return false;
         }};
-    manager.forEachComponent<CameraComponent, TranslationComponent>(forEachCamera);
+    manager.forEachComponents<CameraComponent, TranslationComponent>(forEachCamera);
 
     // Render every mesh
-    ComponentForEachFn<MeshComponent> const forEachMesh{
-        [&manager, &projectionViewMatrix](Entity entity, MeshComponent& component) {
+    ComponentsForEachFn<MeshComponent, TranslationComponent> const forEachMesh{
+        [&manager, &projectionViewMatrix](Entity entity, MeshComponent& component, TranslationComponent& translation) {
             if (component.vertexBuffer == nullptr || component.vertexBufferLayout == nullptr ||
                 component.vertexArray == nullptr || component.indexBuffer == nullptr || component.shader == nullptr)
             {
                 return true;
             }
             component.shader->bind();
-            TranslationComponent& translation{manager.getComponent<TranslationComponent>(entity)};
             glm::mat4 modelMat{glm::translate(glm::mat4(1.0F), translation.position)};
             modelMat = glm::rotate(modelMat, glm::radians(translation.rotation.x), {1.0F, 0.0F, 0.0F});
             modelMat = glm::rotate(modelMat, glm::radians(translation.rotation.y), {0.0F, 1.0F, 0.0F});
@@ -44,7 +42,7 @@ void MeshSystem::update(EntityManager& manager)
             glCheck(glDrawElements(GL_TRIANGLES, component.indexBuffer->getCount(), GL_UNSIGNED_INT, nullptr));
             return true;
         }};
-    manager.forEachComponent<MeshComponent, TranslationComponent>(forEachMesh);
+    manager.forEachComponents<MeshComponent, TranslationComponent>(forEachMesh);
 }
 
 // clang-format off
