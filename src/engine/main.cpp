@@ -1,11 +1,18 @@
 #include "graphics/Graphics.hpp"
 
 #include "GLFW/glfw3.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+#include "imgui.h"
+#include <chrono>
 #include <iostream>
+#include <queue>
 
+#include "components/BoxCollision.hpp"
 #include "components/CameraComponent.hpp"
 #include "components/Common.hpp"
 #include "components/InputComponent.hpp"
+#include "components/MovementComponent.hpp"
 #include "components/TranslationComponent.hpp"
 #include "ecs/EntityManager.hpp"
 #include "ecs/SystemManager.hpp"
@@ -23,6 +30,7 @@ int main()
         if (!glfwInit())
             return -1;
 
+        char* const glslVersion{"#version 330"};
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -65,6 +73,13 @@ int main()
         // Enable depth testing
         glEnable(GL_DEPTH_TEST);
 
+        // Setup debug UI
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io{ImGui::GetIO()};
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
+        ImGui_ImplOpenGL3_Init(glslVersion);
+
         std::shared_ptr<EntityManager> manager{std::make_shared<EntityManager>()};
         SystemManager sysManager(manager);
         registerComponents(*manager);
@@ -75,17 +90,59 @@ int main()
         manager->addComponent<TranslationComponent>(camera, {});
         Entity input{manager->createEntity()};
         manager->addComponent<InputComponent>(input, {window});
-        MeshSystem::createCubeColored(*manager, {{5.0F, 0.0F, 0.0F}}, {1.0F, 0.0F, 0.0F});
-        MeshSystem::createCubeColored(*manager, {{0.0F, 0.0F, 5.0F}}, {0.0F, 1.0F, 0.0F});
-        MeshSystem::createCubeColored(*manager, {{-5.0F, 0.0F, 0.0F}}, {0.0F, 0.0F, 1.0F});
-        MeshSystem::createCubeTextured(*manager, {{0.0F, 0.0F, -5.0F}}, "assets/test.png");
+        Entity coloredCube1{MeshSystem::createCubeColored(*manager, {{0.0F, 0.0F, 5.0F}}, {1.0F, 1.0F, 1.0F, 1.0F})};
+        Entity coloredCube2{MeshSystem::createCubeColored(*manager, {{5.0F, 0.0F, 0.0F}}, {1.0F, 1.0F, 1.0F, 1.0F})};
+        Entity coloredCube3{MeshSystem::createCubeColored(*manager, {{-5.0F, 0.0F, 0.0F}}, {1.0F, 1.0F, 1.0F, 1.0F})};
+        Entity texturedCube{MeshSystem::createCubeTextured(*manager, {{0.0F, 0.0F, -5.0F}}, "assets/test.png")};
+
+        std::chrono::time_point lastTime{std::chrono::steady_clock::now()};
+
+        // Queue to average frame times
+        std::queue<float> frameTimes;
+        constexpr int frameTimesCount{400};
+        float frameTimeSum{};
+        for (int i{}; i < frameTimesCount; i++)
+            frameTimes.push(0.0F);
 
         while (!glfwWindowShouldClose(window))
         {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            sysManager.updateSystems();
+            int winWidth, winHeight;
+            glfwGetFramebufferSize(window, &winWidth, &winHeight);
+            glViewport(0, 0, winWidth, winHeight);
+
+            // Start new imgui frame
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+
+            std::chrono::time_point updateTime{std::chrono::steady_clock::now()};
+            float deltaTime_s{std::chrono::duration<float>(updateTime - lastTime).count()};
+            sysManager.updateSystems(deltaTime_s);
+            lastTime = updateTime;
+
+            {
+                // Get and display the average FPS
+                frameTimeSum += deltaTime_s;
+                frameTimeSum -= frameTimes.front();
+                frameTimes.pop();
+                frameTimes.push(deltaTime_s);
+
+                ImGui::Begin("Stats:");
+                ImGui::Text(std::string("FPS: " + std::to_string(1.0F / (frameTimeSum / frameTimesCount))).c_str());
+                ImGui::End();
+            }
+
+            // Render imgui frame
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
             glfwSwapBuffers(window);
         }
+
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
     }
 
     glfwTerminate();

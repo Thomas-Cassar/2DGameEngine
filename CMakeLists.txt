@@ -78,6 +78,25 @@ file(DOWNLOAD https://raw.githubusercontent.com/nothings/stb/master/stb_image.h 
 add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE ${FETCHCONTENT_BASE_DIR}/stb/includes)
 
+#imgui
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG v1.88
+)
+
+FetchContent_MakeAvailable(imgui)
+
+if(NOT imgui_POPULATED)
+    FetchContent_Populate(imgui)
+endif()
+
+file(GLOB IMGUI_SRCS ${FETCHCONTENT_BASE_DIR}/imgui-src/*.cpp)
+list(APPEND IMGUI_SRCS ${FETCHCONTENT_BASE_DIR}/imgui-src/backends/imgui_impl_opengl3.cpp ${FETCHCONTENT_BASE_DIR}/imgui-src/backends/imgui_impl_glfw.cpp)
+add_library(imgui ${IMGUI_SRCS})
+target_include_directories(imgui PUBLIC ${FETCHCONTENT_BASE_DIR}/imgui-src)
+target_link_libraries(imgui glfw)
+
 #Core Lib
 file(GLOB CORE_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/core/*.cpp)
 add_library(core ${CORE_SRCS})
@@ -106,10 +125,10 @@ target_link_libraries(components core glm ecs graphics)
 file(GLOB SYSTEMS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/systems/*.cpp)
 add_library(systems ${SYSTEMS_SRCS})
 target_include_directories(systems PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/systems/includes)
-target_link_libraries(systems core glm components ecs)
+target_link_libraries(systems core glm components ecs imgui)
 
 #Link libs to main executable
-target_link_libraries(2DGameEngine glfw libglew_static graphics glm ecs core systems)
+target_link_libraries(2DGameEngine glfw libglew_static graphics glm ecs core systems imgui)
 
 #Add shaders to build dir
 file(GLOB SHADER_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/shaders/*)

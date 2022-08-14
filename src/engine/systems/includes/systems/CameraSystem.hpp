@@ -6,7 +6,7 @@
 
 class CameraSystem : public ISystem {
 public:
-    void update(EntityManager& manager) override;
+    void update(EntityManager& manager, float deltaTime_s) override;
 
     static void moveForward(CameraComponent const& camera, TranslationComponent& translation, float distance);
 

@@ -1,10 +1,9 @@
 #pragma once
 
-#include "components/TranslationComponent.hpp"
 #include "ecs/EntityManager.hpp"
 #include "ecs/ISystem.hpp"
 
-class TestSystem : public ISystem {
+class CollisionSystem : public ISystem {
 public:
     void update(EntityManager& manager, float deltaTime_s) override;
 };

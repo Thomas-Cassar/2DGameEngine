@@ -7,9 +7,9 @@
 
 class MeshSystem : public ISystem {
 public:
-    void update(EntityManager& manager) override;
+    void update(EntityManager& manager, float deltaTime_s) override;
     static Entity createCubeColored(EntityManager& manager, TranslationComponent const& pos,
-                                    glm::vec3 const& color = {1.0F, 1.0F, 1.0F});
+                                    glm::vec4 const& color = {1.0F, 1.0F, 1.0F, 1.0F});
     static Entity createCubeTextured(EntityManager& manager, TranslationComponent const& pos,
                                      std::string const& texture);
 };

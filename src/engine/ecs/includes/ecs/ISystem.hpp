@@ -6,5 +6,5 @@
 class ISystem {
 public:
     virtual ~ISystem() = default;
-    virtual void update(EntityManager& manager) = 0;
+    virtual void update(EntityManager& manager, float deltaTime_s) = 0;
 };

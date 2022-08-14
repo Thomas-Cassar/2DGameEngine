@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 
-void InputSystem::update(EntityManager& manager)
+void InputSystem::update(EntityManager& manager, float deltaTime_s)
 {
     // Clear previous callbacks
     glfwPollEvents();

@@ -22,7 +22,7 @@ public:
         typeToSystem.emplace(typeid(T).hash_code(), newSystem);
     }
 
-    void updateSystems();
+    void updateSystems(float deltaTime_s);
 
 private:
     std::vector<std::shared_ptr<ISystem>> systems;

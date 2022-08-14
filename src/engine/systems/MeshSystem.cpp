@@ -1,9 +1,11 @@
 #include "systems/MeshSystem.hpp"
+#include "components/BoxCollision.hpp"
 #include "components/CameraComponent.hpp"
+#include "components/ColorComponent.hpp"
 #include "components/TextureComponent.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-void MeshSystem::update(EntityManager& manager)
+void MeshSystem::update(EntityManager& manager, float deltaTime_s)
 {
     // Get projection*view matrix from the first camera available
     glm::mat4 projectionViewMatrix;
@@ -25,9 +27,14 @@ void MeshSystem::update(EntityManager& manager)
             }
             component.shader->bind();
             glm::mat4 modelMat{glm::translate(glm::mat4(1.0F), translation.position)};
-            modelMat = glm::rotate(modelMat, glm::radians(translation.rotation.x), {1.0F, 0.0F, 0.0F});
-            modelMat = glm::rotate(modelMat, glm::radians(translation.rotation.y), {0.0F, 1.0F, 0.0F});
-            modelMat = glm::rotate(modelMat, glm::radians(translation.rotation.z), {0.0F, 0.0F, 1.0F});
+            if (manager.hasComponents<ColorComponent>(entity))
+            {
+                glm::vec4& color{manager.getComponent<ColorComponent>(entity).color};
+                component.shader->setUniform4f("COLOR", color.x, color.y, color.z, color.w);
+                // TEMP COLLISION TESTING
+                color = {0.0, 1.0F, 0.0F, 1.0F};
+            }
+            modelMat *= glm::toMat4(translation.rotation);
             glm::mat4 mvp = projectionViewMatrix * modelMat;
             component.shader->SetUniformMat4f("MVP", mvp);
 
@@ -63,26 +70,25 @@ constexpr unsigned int cubeIndicies[] = {
 
 // clang-format on
 
-Entity MeshSystem::createCubeColored(EntityManager& manager, TranslationComponent const& pos, glm::vec3 const& color)
+Entity MeshSystem::createCubeColored(EntityManager& manager, TranslationComponent const& pos, glm::vec4 const& color)
 {
     Entity entity{manager.createEntity()};
     // clang-format off
-    float const verArray[] = {// Translation                            Colors
-                                -1.0f / 2.0f, -1.0f / 2.0f, -1.0f/2.0f,   color.x, color.y, color.z,
-                                 1.0f / 2.0f, -1.0f / 2.0f, -1.0f/2.0f,   color.x, color.y, color.z,
-                                 1.0f / 2.0f, -1.0f / 2.0f,  1.0f/2.0f,   color.x, color.y, color.z,
-                                -1.0f / 2.0f, -1.0f / 2.0f,  1.0f/2.0f,   color.x, color.y, color.z,
-                                -1.0f / 2.0f,  1.0f / 2.0f, -1.0f/2.0f,   color.x, color.y, color.z,
-                                 1.0f / 2.0f,  1.0f / 2.0f, -1.0f/2.0f,   color.x, color.y, color.z,
-                                 1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,   color.x, color.y, color.z,
-                                -1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,   color.x, color.y, color.z,
+    float const verArray[] = {// Translation
+                                -1.0f / 2.0f, -1.0f / 2.0f, -1.0f/2.0f,
+                                 1.0f / 2.0f, -1.0f / 2.0f, -1.0f/2.0f,
+                                 1.0f / 2.0f, -1.0f / 2.0f,  1.0f/2.0f,
+                                -1.0f / 2.0f, -1.0f / 2.0f,  1.0f/2.0f,
+                                -1.0f / 2.0f,  1.0f / 2.0f, -1.0f/2.0f,
+                                 1.0f / 2.0f,  1.0f / 2.0f, -1.0f/2.0f,
+                                 1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,
+                                -1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,
     };
     // clang-format on
     MeshComponent mesh;
     mesh.vertexBuffer = std::make_shared<VertexBuffer>(verArray, static_cast<unsigned int>(sizeof(verArray)));
 
     mesh.vertexBufferLayout = std::make_shared<VertexBufferLayout>();
-    mesh.vertexBufferLayout->push(GL_FLOAT, 3, false);
     mesh.vertexBufferLayout->push(GL_FLOAT, 3, false);
 
     mesh.vertexArray = std::make_shared<VertexArray>();
@@ -95,6 +101,8 @@ Entity MeshSystem::createCubeColored(EntityManager& manager, TranslationComponen
 
     manager.addComponent<MeshComponent>(entity, std::move(mesh));
     manager.addComponent<TranslationComponent>(entity, pos);
+    manager.addComponent<ColorComponent>(entity, color);
+    manager.addComponent<BoxCollision>(entity, {1.0F, 1.0F, 1.0F});
     return entity;
 }
 

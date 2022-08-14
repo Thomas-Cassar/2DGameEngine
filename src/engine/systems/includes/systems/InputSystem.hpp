@@ -7,7 +7,7 @@
 
 class InputSystem : public ISystem {
 public:
-    void update(EntityManager& manager) override;
+    void update(EntityManager& manager, float deltaTime_s) override;
 
     static bool isKeyPressedDown(InputComponent const& input, int key);
     static bool isKeyPressedTransition(InputComponent const& input, int key);
