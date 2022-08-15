@@ -2,6 +2,7 @@
 #include "components/BoxCollision.hpp"
 #include "components/CameraComponent.hpp"
 #include "components/ColorComponent.hpp"
+#include "components/MovementComponent.hpp"
 #include "components/TextureComponent.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -103,6 +104,7 @@ Entity MeshSystem::createCubeColored(EntityManager& manager, TranslationComponen
     manager.addComponent<TranslationComponent>(entity, pos);
     manager.addComponent<ColorComponent>(entity, color);
     manager.addComponent<BoxCollision>(entity, {1.0F, 1.0F, 1.0F});
+    manager.addComponent<MovementComponent>(entity, {false});
     return entity;
 }
 
