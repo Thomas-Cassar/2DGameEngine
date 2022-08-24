@@ -44,7 +44,7 @@ int main()
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         // Create window and ensure creation
-        GLFWwindow* window{glfwCreateWindow(640, 480, "2DGameEngine", NULL, NULL)};
+        GLFWwindow* window{glfwCreateWindow(640, 480, "GameEngine", NULL, NULL)};
 
         if (!window)
         {

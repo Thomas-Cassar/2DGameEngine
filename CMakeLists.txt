@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(2DGameEngine VERSION 0.1.0)
+project(GameEngine VERSION 0.1.0)
 
 # Compile with C++ 17
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
@@ -19,7 +19,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release)
-add_executable(2DGameEngine src/engine/main.cpp)
+add_executable(GameEngine src/engine/main.cpp)
 
 include(FetchContent)
 
@@ -128,7 +128,7 @@ target_include_directories(systems PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine
 target_link_libraries(systems core glm components ecs imgui)
 
 #Link libs to main executable
-target_link_libraries(2DGameEngine glfw libglew_static graphics glm ecs core systems imgui)
+target_link_libraries(GameEngine glfw libglew_static graphics glm ecs core systems imgui)
 
 #Add shaders to build dir
 file(GLOB SHADER_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/shaders/*)

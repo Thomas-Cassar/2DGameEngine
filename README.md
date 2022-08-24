@@ -1,4 +1,4 @@
-### Cross Platform (Windows and Linux) 2D Game engine
+### Cross Platform (Windows and Linux) Game engine
 
 ## Windows Prerequisite Instructions:
 1. Install Visual C++ 2019 with Visual Studio
