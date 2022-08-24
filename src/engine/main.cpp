@@ -13,11 +13,19 @@
 #include "components/Common.hpp"
 #include "components/InputComponent.hpp"
 #include "components/MovementComponent.hpp"
-#include "components/TranslationComponent.hpp"
+#include "components/PlayerComponent.hpp"
+#include "components/TransformComponent.hpp"
 #include "ecs/EntityManager.hpp"
 #include "ecs/SystemManager.hpp"
 #include "systems/Common.hpp"
 #include "systems/MeshSystem.hpp"
+
+#ifdef _WIN32
+extern "C" { // Use High Performance GPU
+__declspec(dllexport) bool AmdPowerXpressRequestHighPerformance = true;
+__declspec(dllexport) bool NvOptimusEnablement = true;
+}
+#endif
 
 void error_callback(int error, const char* description) { std::cerr << "Error: " << description << std::endl; }
 
@@ -85,15 +93,25 @@ int main()
         registerComponents(*manager);
         registerSystems(sysManager);
 
-        Entity camera{manager->createEntity()};
-        manager->addComponent<CameraComponent>(camera, {});
-        manager->addComponent<TranslationComponent>(camera, {});
-        Entity input{manager->createEntity()};
-        manager->addComponent<InputComponent>(input, {window});
-        Entity coloredCube1{MeshSystem::createCubeColored(*manager, {{0.0F, 0.0F, 5.0F}}, {1.0F, 1.0F, 1.0F, 1.0F})};
-        Entity coloredCube2{MeshSystem::createCubeColored(*manager, {{5.0F, 0.0F, 0.0F}}, {1.0F, 1.0F, 1.0F, 1.0F})};
-        Entity coloredCube3{MeshSystem::createCubeColored(*manager, {{-5.0F, 0.0F, 0.0F}}, {1.0F, 1.0F, 1.0F, 1.0F})};
-        Entity texturedCube{MeshSystem::createCubeTextured(*manager, {{0.0F, 0.0F, -5.0F}}, "assets/test.png")};
+        Entity player{manager->createEntity()};
+        manager->addComponent<CameraComponent>(player, {});
+        manager->addComponent<TransformComponent>(player, {{0.0f, 4.0f, 0.0f}});
+        manager->addComponent<InputComponent>(player, {window});
+        manager->addComponent<MovementComponent>(player, {true, true, 5.0F});
+        manager->addComponent<PlayerComponent>(player, {});
+        manager->addComponent<BoxCollision>(player, {1.0f, 2.0f, 1.0f});
+
+        Entity coloredCube1{MeshSystem::createCubeColored(*manager, {{0.0F, 0.0F, 0.0F}, {}, {5.0F, 1.0F, 5.0F}},
+                                                          {1.0F, 1.0F, 1.0F, 1.0F})};
+        constexpr int numCubes{100};
+        for (int i{}; i < numCubes; i++)
+        {
+            MeshSystem::createCubeColored(
+                *manager,
+                {{static_cast<float>(rand()) / RAND_MAX * 100.0f, static_cast<float>(rand()) / RAND_MAX * 10.0f,
+                  static_cast<float>(rand()) / RAND_MAX * 100.0f}},
+                {1.0f, 0.0f, 0.0f, 0.0f});
+        }
 
         std::chrono::time_point lastTime{std::chrono::steady_clock::now()};
 

@@ -10,32 +10,31 @@ void MeshSystem::update(EntityManager& manager, float deltaTime_s)
 {
     // Get projection*view matrix from the first camera available
     glm::mat4 projectionViewMatrix;
-    ComponentsForEachFn<CameraComponent, TranslationComponent> const forEachCamera{
-        [&manager, &projectionViewMatrix](Entity entity, CameraComponent& cam, TranslationComponent& translation) {
+    ComponentsForEachFn<CameraComponent, TransformComponent> const forEachCamera{
+        [&manager, &projectionViewMatrix](Entity entity, CameraComponent& cam, TransformComponent& transform) {
             projectionViewMatrix =
-                cam.proj * glm::lookAt(translation.position, cam.cameraFront + translation.position, cam.cameraUp);
+                cam.proj * glm::lookAt(transform.position, cam.cameraFront + transform.position, cam.cameraUp);
             return false;
         }};
-    manager.forEachComponents<CameraComponent, TranslationComponent>(forEachCamera);
+    manager.forEachComponents<CameraComponent, TransformComponent>(forEachCamera);
 
     // Render every mesh
-    ComponentsForEachFn<MeshComponent, TranslationComponent> const forEachMesh{
-        [&manager, &projectionViewMatrix](Entity entity, MeshComponent& component, TranslationComponent& translation) {
+    ComponentsForEachFn<MeshComponent, TransformComponent> const forEachMesh{
+        [&manager, &projectionViewMatrix](Entity entity, MeshComponent& component, TransformComponent& transform) {
             if (component.vertexBuffer == nullptr || component.vertexBufferLayout == nullptr ||
                 component.vertexArray == nullptr || component.indexBuffer == nullptr || component.shader == nullptr)
             {
                 return true;
             }
             component.shader->bind();
-            glm::mat4 modelMat{glm::translate(glm::mat4(1.0F), translation.position)};
             if (manager.hasComponents<ColorComponent>(entity))
             {
                 glm::vec4& color{manager.getComponent<ColorComponent>(entity).color};
                 component.shader->setUniform4f("COLOR", color.x, color.y, color.z, color.w);
-                // TEMP COLLISION TESTING
-                color = {0.0, 1.0F, 0.0F, 1.0F};
             }
-            modelMat *= glm::toMat4(translation.rotation);
+            glm::mat4 modelMat{glm::translate(glm::mat4(1.0F), transform.position)};
+            modelMat *= glm::toMat4(transform.rotation);
+            modelMat = glm::scale(modelMat, transform.scale);
             glm::mat4 mvp = projectionViewMatrix * modelMat;
             component.shader->SetUniformMat4f("MVP", mvp);
 
@@ -50,7 +49,7 @@ void MeshSystem::update(EntityManager& manager, float deltaTime_s)
             glCheck(glDrawElements(GL_TRIANGLES, component.indexBuffer->getCount(), GL_UNSIGNED_INT, nullptr));
             return true;
         }};
-    manager.forEachComponents<MeshComponent, TranslationComponent>(forEachMesh);
+    manager.forEachComponents<MeshComponent, TransformComponent>(forEachMesh);
 }
 
 // clang-format off
@@ -71,7 +70,7 @@ constexpr unsigned int cubeIndicies[] = {
 
 // clang-format on
 
-Entity MeshSystem::createCubeColored(EntityManager& manager, TranslationComponent const& pos, glm::vec4 const& color)
+Entity MeshSystem::createCubeColored(EntityManager& manager, TransformComponent const& pos, glm::vec4 const& color)
 {
     Entity entity{manager.createEntity()};
     // clang-format off
@@ -101,15 +100,14 @@ Entity MeshSystem::createCubeColored(EntityManager& manager, TranslationComponen
     mesh.shader = std::make_shared<Shader>("shaders/Plane2DColored.vert", "shaders/Plane2DColored.frag");
 
     manager.addComponent<MeshComponent>(entity, std::move(mesh));
-    manager.addComponent<TranslationComponent>(entity, pos);
+    manager.addComponent<TransformComponent>(entity, pos);
+    manager.addComponent<BoxCollision>(entity, {pos.scale.x, pos.scale.y, pos.scale.z});
+    manager.addComponent<MovementComponent>(entity, {false, false});
     manager.addComponent<ColorComponent>(entity, color);
-    manager.addComponent<BoxCollision>(entity, {1.0F, 1.0F, 1.0F});
-    manager.addComponent<MovementComponent>(entity, {false});
     return entity;
 }
 
-Entity MeshSystem::createCubeTextured(EntityManager& manager, TranslationComponent const& pos,
-                                      std::string const& texture)
+Entity MeshSystem::createCubeTextured(EntityManager& manager, TransformComponent const& pos, std::string const& texture)
 {
     Entity entity{manager.createEntity()};
     // clang-format off
@@ -143,6 +141,6 @@ Entity MeshSystem::createCubeTextured(EntityManager& manager, TranslationCompone
     manager.addComponent<TextureComponent>(entity, {texture});
 
     manager.addComponent<MeshComponent>(entity, std::move(mesh));
-    manager.addComponent<TranslationComponent>(entity, pos);
+    manager.addComponent<TransformComponent>(entity, pos);
     return entity;
 }

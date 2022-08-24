@@ -68,7 +68,11 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "bitset": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "deque": "cpp",
+        "mutex": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp"
     },
     "editor.formatOnSave": true,
     "editor.tabSize": 4

@@ -7,12 +7,13 @@
 #include "components/ColorComponent.hpp"
 #include "components/InputComponent.hpp"
 #include "components/MovementComponent.hpp"
+#include "components/PlayerComponent.hpp"
 #include "components/TextureComponent.hpp"
-#include "components/TranslationComponent.hpp"
+#include "components/TransformComponent.hpp"
 
 void registerComponents(EntityManager& manager)
 {
-    manager.registerComponent<TranslationComponent>();
+    manager.registerComponent<TransformComponent>();
     manager.registerComponent<MeshComponent>();
     manager.registerComponent<CameraComponent>();
     manager.registerComponent<InputComponent>();
@@ -20,4 +21,5 @@ void registerComponents(EntityManager& manager)
     manager.registerComponent<MovementComponent>();
     manager.registerComponent<BoxCollision>();
     manager.registerComponent<ColorComponent>();
+    manager.registerComponent<PlayerComponent>();
 }

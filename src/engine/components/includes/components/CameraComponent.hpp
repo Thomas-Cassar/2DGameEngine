@@ -10,8 +10,8 @@ struct CameraComponent : public IComponent {
     glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
     /// Camera projection matrix
     glm::mat4 proj;
-    /// Yaw value set to the TranslationComponents Quaternion
+    /// Yaw value used for the cameraFront vector and the transforms rotation
     float targetYaw_rad = {};
-    /// Pitch value set to the TranslationComponents Quaternion
+    /// Pitch value used for the cameraFront vector
     float targetPitch_rad = {};
 };

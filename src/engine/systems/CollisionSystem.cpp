@@ -1,29 +1,36 @@
 #include "systems/CollisionSystem.hpp"
 #include "components/BoxCollision.hpp"
 #include "components/ColorComponent.hpp"
-#include "components/TranslationComponent.hpp"
+#include "components/MovementComponent.hpp"
+#include "components/TransformComponent.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
 
-static bool collisionCheck(TranslationComponent const& translationA, BoxCollision const& boxA,
-                           TranslationComponent const& translationB, BoxCollision const& boxB)
+static bool collisionCheck(TransformComponent const& transformA, BoxCollision const& boxA,
+                           TransformComponent const& transformB, BoxCollision const& boxB)
 {
+    float maxA = std::max(boxA.height, std::max(boxA.width, boxA.depth));
+    float maxB = std::max(boxB.height, std::max(boxB.width, boxB.depth));
+    if (glm::length(transformA.position - transformB.position) > maxA + maxB)
+    {
+        return false;
+    }
     // Based of of:
     // https://www.jkh.me/files/tutorials/Separating%20Axis%20Theorem%20for%20Oriented%20Bounding%20Boxes.pdf
 
     // Outer loop is collision box A
-    glm::vec3 const& aP{translationA.position};
-    glm::vec3 aX{glm::vec3(1.0F, 0.0F, 0.0F) * translationA.rotation};
-    glm::vec3 aY{glm::vec3(0.0F, 1.0F, 0.0F) * translationA.rotation};
-    glm::vec3 aZ{glm::vec3(0.0F, 0.0F, 1.0F) * translationA.rotation};
+    glm::vec3 const& aP{transformA.position};
+    glm::vec3 aX{glm::vec3(1.0F, 0.0F, 0.0F) * transformA.rotation};
+    glm::vec3 aY{glm::vec3(0.0F, 1.0F, 0.0F) * transformA.rotation};
+    glm::vec3 aZ{glm::vec3(0.0F, 0.0F, 1.0F) * transformA.rotation};
     float aW{boxA.width / 2.0F};
     float aH{boxA.height / 2.0F};
     float aD{boxA.depth / 2.0F};
     // Inner loop is collision box B
-    glm::vec3 const& bP{translationB.position};
-    glm::vec3 bX{glm::vec3(1.0F, 0.0F, 0.0F) * translationB.rotation};
-    glm::vec3 bY{glm::vec3(0.0F, 1.0F, 0.0F) * translationB.rotation};
-    glm::vec3 bZ{glm::vec3(0.0F, 0.0F, 1.0F) * translationB.rotation};
+    glm::vec3 const& bP{transformB.position};
+    glm::vec3 bX{glm::vec3(1.0F, 0.0F, 0.0F) * transformB.rotation};
+    glm::vec3 bY{glm::vec3(0.0F, 1.0F, 0.0F) * transformB.rotation};
+    glm::vec3 bZ{glm::vec3(0.0F, 0.0F, 1.0F) * transformB.rotation};
     float bW{boxB.width / 2.0F};
     float bH{boxB.height / 2.0F};
     float bD{boxB.depth / 2.0F};
@@ -143,34 +150,92 @@ static bool collisionCheck(TranslationComponent const& translationA, BoxCollisio
     return true;
 }
 
+// TODO: Update with more complex collision resolution
+static void resolveCollision(TransformComponent& transformA, MovementComponent& moveA, BoxCollision const& boxA,
+                             TransformComponent& transformB, MovementComponent& moveB, BoxCollision const& boxB,
+                             float deltaTime_s)
+{
+    // This is a simple collision resolution for the player hitting a stationary object
+    if (moveA.canMove && !moveB.canMove)
+    {
+        constexpr int collisionChecks{4};
+        constexpr float collisionCheckStep{1.0F / static_cast<float>(collisionChecks)};
+        glm::vec3 oldPosition{transformA.position};
+        // x
+        for (int i{1}; i <= collisionChecks; i++)
+        {
+            transformA.position.x -= (moveA.velocity.x * deltaTime_s * collisionCheckStep);
+            if (!collisionCheck(transformA, boxA, transformB, boxB))
+            {
+                moveA.velocity.x = 0.0f;
+                return;
+            }
+        }
+        // y
+        transformA.position = oldPosition;
+        for (int i{1}; i <= collisionChecks; i++)
+        {
+            transformA.position.y -= (moveA.velocity.y * deltaTime_s * collisionCheckStep);
+            if (!collisionCheck(transformA, boxA, transformB, boxB))
+            {
+                moveA.velocity.y = 0.0f;
+                return;
+            }
+        }
+        // z
+        transformA.position = oldPosition;
+        for (int i{1}; i <= collisionChecks; i++)
+        {
+            transformA.position.z -= (moveA.velocity.z * deltaTime_s * collisionCheckStep);
+            if (!collisionCheck(transformA, boxA, transformB, boxB))
+            {
+                moveA.velocity.z = 0.0f;
+                return;
+            }
+        }
+        transformA.position = oldPosition;
+    }
+}
+
 void CollisionSystem::update(EntityManager& manager, float deltaTime_s)
 {
-    ComponentsForEachFn<BoxCollision, TranslationComponent> const forEachCollisionOuter{
-        [&manager](Entity entityA, BoxCollision& boxA, TranslationComponent& translationA) {
-            ComponentsForEachFn<BoxCollision, TranslationComponent> const forEachCollisionInner{
-                [&manager, &entityA, &boxA, &translationA](Entity entityB, BoxCollision& boxB,
-                                                           TranslationComponent& translationB) {
+    ComponentsForEachFn<BoxCollision, TransformComponent> const setCollidingFalse{
+        [](Entity entity, BoxCollision& box, TransformComponent& transform) {
+            box.colliding = false;
+            return true;
+        }};
+
+    ComponentsForEachFn<BoxCollision, TransformComponent> const forEachCollisionOuter{
+        [&manager, &deltaTime_s](Entity entityA, BoxCollision& boxA, TransformComponent& transformA) {
+            ComponentsForEachFn<BoxCollision, TransformComponent> const forEachCollisionInner{
+                [&manager, &entityA, &boxA, &transformA, &deltaTime_s](Entity entityB, BoxCollision& boxB,
+                                                                       TransformComponent& transformB) {
                     // Don't check self collision
                     if (entityA == entityB)
                     {
                         return true;
                     }
 
-                    if (collisionCheck(translationA, boxA, translationB, boxB))
+                    if (collisionCheck(transformA, boxA, transformB, boxB))
                     {
-                        // Do something
-                        if (manager.hasComponents<ColorComponent>(entityA))
+                        boxA.colliding = true;
+                        boxB.colliding = true;
+                        if (manager.hasComponents<MovementComponent>(entityA) &&
+                            manager.hasComponents<MovementComponent>(entityB))
                         {
-                            manager.getComponent<ColorComponent>(entityA).color = {1.0F, 0.0F, 0.0F, 1.0F};
+                            MovementComponent& moveA{manager.getComponent<MovementComponent>(entityA)};
+                            MovementComponent& moveB{manager.getComponent<MovementComponent>(entityB)};
+                            resolveCollision(transformA, moveA, boxA, transformB, moveB, boxB, deltaTime_s);
                         }
                     }
 
                     return true;
                 }};
 
-            manager.forEachComponents<BoxCollision, TranslationComponent>(forEachCollisionInner);
+            manager.forEachComponents<BoxCollision, TransformComponent>(forEachCollisionInner);
             return true;
         }};
 
-    manager.forEachComponents<BoxCollision, TranslationComponent>(forEachCollisionOuter);
+    manager.forEachComponents<BoxCollision, TransformComponent>(setCollidingFalse);
+    manager.forEachComponents<BoxCollision, TransformComponent>(forEachCollisionOuter);
 }

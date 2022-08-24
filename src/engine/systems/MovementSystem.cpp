@@ -1,31 +1,52 @@
 #include "systems/MovementSystem.hpp"
 #include "components/MovementComponent.hpp"
-#include "components/TranslationComponent.hpp"
+#include "components/TransformComponent.hpp"
 
 void MovementSystem::update(EntityManager& manager, float deltaTime_s)
 {
-    ComponentsForEachFn<MovementComponent, TranslationComponent> const forEachMovement{
-        [&manager, &deltaTime_s](Entity entity, MovementComponent& movement, TranslationComponent& translation) {
+    ComponentsForEachFn<MovementComponent, TransformComponent> const forEachMovement{
+        [&manager, &deltaTime_s](Entity entity, MovementComponent& movement, TransformComponent& transform) {
+            if (!movement.canMove)
+            {
+                movement.acceleration = {};
+                movement.velocity = {};
+                movement.angularAcceleration = {};
+                movement.angularVelocity = {};
+                return true;
+            }
+
             if (movement.doesGravity)
             {
-                movement.acceleration = {0.0F, -9.81F, 0.0F};
+                movement.acceleration += glm::vec3{0.0F, -9.81F, 0.0F};
             }
-            // Velocities for this time step is approximated to oldVelocity + half deltaVelocity
-            glm::vec3 deltaVelocity{movement.acceleration * deltaTime_s};
-            translation.position += (movement.velocity + 0.5F * deltaVelocity) * deltaTime_s;
-            movement.velocity += deltaVelocity;
+            // Velocities for this time step is approximated to oldVelocity
+            transform.position += movement.velocity * deltaTime_s;
+            movement.velocity += movement.acceleration * deltaTime_s;
+
+            // Reset acceleration so forces can be applied again during the next frame
+            movement.acceleration = {};
+
+            // Clamp to terminal velocity
+            glm::vec3 horizontalVelocity{movement.velocity.x, 0.0f, movement.velocity.z};
+            float verticalVelocity{movement.velocity.y};
+            if (glm::length(horizontalVelocity) > movement.terminalVelocityHorizontal)
+            {
+                horizontalVelocity = glm::normalize(horizontalVelocity) * movement.terminalVelocityHorizontal;
+            }
+            if (std::fabs(verticalVelocity) > movement.terminalVelocityVertical)
+            {
+                verticalVelocity = movement.terminalVelocityVertical;
+            }
+            movement.velocity = glm::vec3{horizontalVelocity.x, verticalVelocity, horizontalVelocity.z};
 
             // Angular
             // Derivation: https://gamedev.stackexchange.com/questions/108920/applying-angular-velocity-to-quaternion
-            glm::vec3 deltaAngularVelocity{movement.angularAcceleration * deltaTime_s};
-            translation.rotation =
-                (glm::quat(0.5F * (movement.angularVelocity + 0.5F * deltaAngularVelocity) * deltaTime_s) +
-                 glm::quat()) *
-                translation.rotation;
-            movement.angularVelocity += deltaAngularVelocity;
+            transform.rotation =
+                (glm::quat(0.5F * movement.angularVelocity * deltaTime_s) + glm::quat()) * transform.rotation;
+            movement.angularVelocity += movement.angularAcceleration * deltaTime_s;
 
             return true;
         }};
 
-    manager.forEachComponents<MovementComponent, TranslationComponent>(forEachMovement);
+    manager.forEachComponents<MovementComponent, TransformComponent>(forEachMovement);
 }
