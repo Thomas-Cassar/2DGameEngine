@@ -1,6 +1,8 @@
 #pragma once
 #include "ecs/ISystem.hpp"
 
+#include <iostream>
+
 class SystemManager {
 public:
     SystemManager(std::shared_ptr<EntityManager> manager);

@@ -2,6 +2,7 @@
 #include "components/BoxCollision.hpp"
 #include "components/ColorComponent.hpp"
 #include "components/MovementComponent.hpp"
+#include "components/PlayerComponent.hpp"
 #include "components/TransformComponent.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
@@ -151,12 +152,11 @@ static bool collisionCheck(TransformComponent const& transformA, BoxCollision co
 }
 
 // TODO: Update with more complex collision resolution
+// Currently resolves collision between a movable and stationary object
 static void resolveCollision(TransformComponent& transformA, MovementComponent& moveA, BoxCollision const& boxA,
-                             TransformComponent& transformB, MovementComponent& moveB, BoxCollision const& boxB,
-                             float deltaTime_s)
+                             TransformComponent& transformB, BoxCollision const& boxB, float deltaTime_s)
 {
-    // This is a simple collision resolution for the player hitting a stationary object
-    if (moveA.canMove && !moveB.canMove)
+    if (moveA.canMove)
     {
         constexpr int collisionChecks{4};
         constexpr float collisionCheckStep{1.0F / static_cast<float>(collisionChecks)};
@@ -205,8 +205,10 @@ void CollisionSystem::update(EntityManager& manager, float deltaTime_s)
             return true;
         }};
 
-    ComponentsForEachFn<BoxCollision, TransformComponent> const forEachCollisionOuter{
-        [&manager, &deltaTime_s](Entity entityA, BoxCollision& boxA, TransformComponent& transformA) {
+    // Check collision for every player
+    ComponentsForEachFn<BoxCollision, TransformComponent, PlayerComponent> const forEachPlayerCollision{
+        [&manager, &deltaTime_s](Entity entityA, BoxCollision& boxA, TransformComponent& transformA,
+                                 PlayerComponent& player) {
             ComponentsForEachFn<BoxCollision, TransformComponent> const forEachCollisionInner{
                 [&manager, &entityA, &boxA, &transformA, &deltaTime_s](Entity entityB, BoxCollision& boxB,
                                                                        TransformComponent& transformB) {
@@ -220,12 +222,10 @@ void CollisionSystem::update(EntityManager& manager, float deltaTime_s)
                     {
                         boxA.colliding = true;
                         boxB.colliding = true;
-                        if (manager.hasComponents<MovementComponent>(entityA) &&
-                            manager.hasComponents<MovementComponent>(entityB))
+                        if (manager.hasComponents<MovementComponent>(entityA))
                         {
                             MovementComponent& moveA{manager.getComponent<MovementComponent>(entityA)};
-                            MovementComponent& moveB{manager.getComponent<MovementComponent>(entityB)};
-                            resolveCollision(transformA, moveA, boxA, transformB, moveB, boxB, deltaTime_s);
+                            resolveCollision(transformA, moveA, boxA, transformB, boxB, deltaTime_s);
                         }
                     }
 
@@ -237,5 +237,5 @@ void CollisionSystem::update(EntityManager& manager, float deltaTime_s)
         }};
 
     manager.forEachComponents<BoxCollision, TransformComponent>(setCollidingFalse);
-    manager.forEachComponents<BoxCollision, TransformComponent>(forEachCollisionOuter);
+    manager.forEachComponents(forEachPlayerCollision);
 }

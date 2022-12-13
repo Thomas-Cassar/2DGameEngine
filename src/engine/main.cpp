@@ -38,7 +38,7 @@ int main()
         if (!glfwInit())
             return -1;
 
-        char* const glslVersion{"#version 330"};
+        char const* glslVersion{"#version 330"};
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);

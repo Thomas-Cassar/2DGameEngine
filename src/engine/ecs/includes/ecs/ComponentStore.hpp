@@ -28,7 +28,7 @@ public:
 
     void destroyComponent(Entity entity) override
     {
-        auto& component{entityToComponent.find(entity)};
+        auto component{entityToComponent.find(entity)};
         if (component == std::end(entityToComponent))
         {
             return;
@@ -47,7 +47,7 @@ public:
 
     T& getComponent(Entity const entity)
     {
-        auto& component{entityToComponent.find(entity)};
+        auto component{entityToComponent.find(entity)};
         if (component == std::end(entityToComponent))
         {
             throw std::exception("Could not find component!");

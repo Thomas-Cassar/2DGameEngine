@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(GameEngine VERSION 0.1.0)
 
-# Compile with C++ 17
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+# Compile with C++ 20
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 # Needed for MSVC
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 if(WIN32)
 set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/windows/${CMAKE_GENERATOR_PLATFORM})
@@ -27,7 +27,7 @@ include(FetchContent)
 FetchContent_Declare(
     glfw
     GIT_REPOSITORY https://github.com/glfw/glfw.git
-    GIT_TAG 3.3.6
+    GIT_TAG 3.3.8
 )
 
 FetchContent_MakeAvailable(glfw)
@@ -82,7 +82,7 @@ target_include_directories(stb INTERFACE ${FETCHCONTENT_BASE_DIR}/stb/includes)
 FetchContent_Declare(
     imgui
     GIT_REPOSITORY https://github.com/ocornut/imgui.git
-    GIT_TAG v1.88
+    GIT_TAG v1.89.1
 )
 
 FetchContent_MakeAvailable(imgui)

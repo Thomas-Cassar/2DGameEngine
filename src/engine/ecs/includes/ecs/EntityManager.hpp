@@ -3,6 +3,7 @@
 #include "ecs/Entity.hpp"
 #include "ecs/IdGenerator.hpp"
 #include <exception>
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <unordered_map>
@@ -12,6 +13,8 @@
 
 template <typename T, typename... Args>
 using ComponentsForEachFn = std::function<bool(Entity, T&, Args&...)>;
+
+struct IComponent;
 
 class EntityManager {
 public:
