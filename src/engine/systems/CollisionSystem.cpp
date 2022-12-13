@@ -160,25 +160,27 @@ static void resolveCollision(TransformComponent& transformA, MovementComponent& 
     {
         constexpr int collisionChecks{4};
         constexpr float collisionCheckStep{1.0F / static_cast<float>(collisionChecks)};
-        glm::vec3 oldPosition{transformA.position};
-        // x
-        for (int i{1}; i <= collisionChecks; i++)
-        {
-            transformA.position.x -= (moveA.velocity.x * deltaTime_s * collisionCheckStep);
-            if (!collisionCheck(transformA, boxA, transformB, boxB))
-            {
-                moveA.velocity.x = 0.0f;
-                return;
-            }
-        }
+        glm::vec3 const oldPosition{transformA.position};
+        // Epsilon value to multiply collision check by to get slightly past the collision
+        constexpr float epsilon{1.03F};
         // y
-        transformA.position = oldPosition;
         for (int i{1}; i <= collisionChecks; i++)
         {
-            transformA.position.y -= (moveA.velocity.y * deltaTime_s * collisionCheckStep);
+            transformA.position.y -= (moveA.velocity.y * deltaTime_s * collisionCheckStep * epsilon);
             if (!collisionCheck(transformA, boxA, transformB, boxB))
             {
                 moveA.velocity.y = 0.0f;
+                return;
+            }
+        }
+        transformA.position = oldPosition;
+        // x
+        for (int i{1}; i <= collisionChecks; i++)
+        {
+            transformA.position.x -= (moveA.velocity.x * deltaTime_s * collisionCheckStep * epsilon);
+            if (!collisionCheck(transformA, boxA, transformB, boxB))
+            {
+                moveA.velocity.x = 0.0f;
                 return;
             }
         }
@@ -186,14 +188,64 @@ static void resolveCollision(TransformComponent& transformA, MovementComponent& 
         transformA.position = oldPosition;
         for (int i{1}; i <= collisionChecks; i++)
         {
-            transformA.position.z -= (moveA.velocity.z * deltaTime_s * collisionCheckStep);
+            transformA.position.z -= (moveA.velocity.z * deltaTime_s * collisionCheckStep * epsilon);
             if (!collisionCheck(transformA, boxA, transformB, boxB))
             {
                 moveA.velocity.z = 0.0f;
                 return;
             }
         }
+        // yx
         transformA.position = oldPosition;
+        for (int i{1}; i <= collisionChecks; i++)
+        {
+            transformA.position.y -= (moveA.velocity.y * deltaTime_s * collisionCheckStep * epsilon);
+            transformA.position.x -= (moveA.velocity.x * deltaTime_s * collisionCheckStep * epsilon);
+            if (!collisionCheck(transformA, boxA, transformB, boxB))
+            {
+                moveA.velocity.y = 0.0f;
+                moveA.velocity.x = 0.0f;
+                return;
+            }
+        }
+        // yz
+        transformA.position = oldPosition;
+        for (int i{1}; i <= collisionChecks; i++)
+        {
+            transformA.position.y -= (moveA.velocity.y * deltaTime_s * collisionCheckStep * epsilon);
+            transformA.position.z -= (moveA.velocity.z * deltaTime_s * collisionCheckStep * epsilon);
+            if (!collisionCheck(transformA, boxA, transformB, boxB))
+            {
+                moveA.velocity.y = 0.0f;
+                moveA.velocity.z = 0.0f;
+                return;
+            }
+        }
+        // xz
+        transformA.position = oldPosition;
+        for (int i{1}; i <= collisionChecks; i++)
+        {
+            transformA.position.x -= (moveA.velocity.x * deltaTime_s * collisionCheckStep * epsilon);
+            transformA.position.z -= (moveA.velocity.z * deltaTime_s * collisionCheckStep * epsilon);
+            if (!collisionCheck(transformA, boxA, transformB, boxB))
+            {
+                moveA.velocity.x = 0.0f;
+                moveA.velocity.z = 0.0f;
+                return;
+            }
+        }
+        // xyz
+        transformA.position = oldPosition;
+        for (int i{1}; i <= collisionChecks; i++)
+        {
+            transformA.position -= (moveA.velocity * deltaTime_s * collisionCheckStep * epsilon);
+            if (!collisionCheck(transformA, boxA, transformB, boxB))
+            {
+                moveA.velocity = {};
+                return;
+            }
+        }
+        // Default case we returned to the previous position using previous for loop
     }
 }
 

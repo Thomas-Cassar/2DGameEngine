@@ -13,7 +13,8 @@ void MeshSystem::update(EntityManager& manager, float deltaTime_s)
     ComponentsForEachFn<CameraComponent, TransformComponent> const forEachCamera{
         [&manager, &projectionViewMatrix](Entity entity, CameraComponent& cam, TransformComponent& transform) {
             projectionViewMatrix =
-                cam.proj * glm::lookAt(transform.position, cam.cameraFront + transform.position, cam.cameraUp);
+                cam.proj * glm::lookAt(transform.position + cam.offset,
+                                       cam.cameraFront + transform.position + cam.offset, cam.cameraUp);
             return false;
         }};
     manager.forEachComponents<CameraComponent, TransformComponent>(forEachCamera);

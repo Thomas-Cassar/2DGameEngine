@@ -23,27 +23,22 @@ void PlayerSystem::move(MovementComponent& move, CameraComponent& cam, InputComp
     forwardVector = glm::normalize(forwardVector);
     glm::vec3 rightVector{glm::normalize(glm::cross(forwardVector, cam.cameraUp))};
     glm::vec3 moveAcceleration{};
-    bool keyPressed{false};
 
     if (InputSystem::isKeyPressedDown(input, GLFW_KEY_W))
     {
         moveAcceleration += forwardVector;
-        keyPressed = true;
     }
     if (InputSystem::isKeyPressedDown(input, GLFW_KEY_S))
     {
         moveAcceleration -= forwardVector;
-        keyPressed = true;
     }
     if (InputSystem::isKeyPressedDown(input, GLFW_KEY_D))
     {
         moveAcceleration += rightVector;
-        keyPressed = true;
     }
     if (InputSystem::isKeyPressedDown(input, GLFW_KEY_A))
     {
         moveAcceleration -= rightVector;
-        keyPressed = true;
     }
 
     /// TODO: Set acceleration magnitude somewhere else
@@ -51,11 +46,11 @@ void PlayerSystem::move(MovementComponent& move, CameraComponent& cam, InputComp
     constexpr float decelerationMag{-50.0f};
     constexpr float jumpMag{30.0f};
     constexpr float epsilon{1.0f};
-    if (keyPressed)
+    if (moveAcceleration != glm::vec3{})
     {
         moveAcceleration = glm::normalize(moveAcceleration) * accelerationMag;
     }
-    // When no key pressed accelerate in direction opposite of velocity to slow down
+    // When not moving accelerate in direction opposite of velocity to slow down
     else
     {
         glm::vec3 horizontalVelocity{move.velocity.x, 0.0f, move.velocity.z};

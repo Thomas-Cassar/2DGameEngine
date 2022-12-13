@@ -6,8 +6,8 @@
 
 struct TransformComponent : public IComponent {
     glm::vec3 position = {};
-    glm::quat rotation = {};
-    glm::vec3 scale = {1.0f,1.0f,1.0f};
+    glm::quat rotation = glm::quat(glm::vec3{});
+    glm::vec3 scale = {1.0f, 1.0f, 1.0f};
 
     TransformComponent(glm::vec3 position, glm::quat quaternion) : position(position), rotation(quaternion) {}
 

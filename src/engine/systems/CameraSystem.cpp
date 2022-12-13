@@ -68,7 +68,7 @@ void CameraSystem::turnCameraFromInput(CameraComponent& camera, TransformCompone
     camera.cameraFront.y = sin(camera.targetPitch_rad);
     camera.cameraFront.z = sin(camera.targetYaw_rad) * cos(camera.targetPitch_rad);
     camera.cameraFront = glm::normalize(camera.cameraFront);
-    transform.rotation = glm::quat({0.0F, camera.targetYaw_rad, 0.0F});
+    transform.rotation = glm::quat({0.0F, -camera.targetYaw_rad, 0.0F});
 }
 
 void CameraSystem::updateCameraProjectionMatrix(CameraComponent& camera, float const fov, float const width,

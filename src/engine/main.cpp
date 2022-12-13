@@ -94,7 +94,7 @@ int main()
         registerSystems(sysManager);
 
         Entity player{manager->createEntity()};
-        manager->addComponent<CameraComponent>(player, {});
+        manager->addComponent<CameraComponent>(player, {{}});
         manager->addComponent<TransformComponent>(player, {{0.0f, 4.0f, 0.0f}});
         manager->addComponent<InputComponent>(player, {window});
         manager->addComponent<MovementComponent>(player, {true, true, 5.0F});

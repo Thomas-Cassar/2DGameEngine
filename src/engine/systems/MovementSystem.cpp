@@ -19,9 +19,9 @@ void MovementSystem::update(EntityManager& manager, float deltaTime_s)
             {
                 movement.acceleration += glm::vec3{0.0F, -9.81F, 0.0F};
             }
-            // Velocities for this time step is approximated to oldVelocity
-            transform.position += movement.velocity * deltaTime_s;
+            // Velocities for this time step is approximated to the new velocity
             movement.velocity += movement.acceleration * deltaTime_s;
+            transform.position += movement.velocity * deltaTime_s;
 
             // Reset acceleration so forces can be applied again during the next frame
             movement.acceleration = {};

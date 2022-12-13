@@ -72,7 +72,9 @@
         "deque": "cpp",
         "mutex": "cpp",
         "stop_token": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "ranges": "cpp",
+        "span": "cpp"
     },
     "editor.formatOnSave": true,
     "editor.tabSize": 4
