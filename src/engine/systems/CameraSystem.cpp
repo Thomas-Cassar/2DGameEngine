@@ -38,7 +38,7 @@ void CameraSystem::update(EntityManager& manager, float deltaTime_s)
                 moveRight(camera, transform, -10.0f * deltaTime_s);
             return true;
         }};
-    manager.forEachComponents<CameraComponent, TransformComponent, InputComponent>(forEachCamera);
+    manager.forEachComponents(forEachCamera);
 }
 
 void CameraSystem::moveForward(CameraComponent const& camera, TransformComponent& transform, float distance)

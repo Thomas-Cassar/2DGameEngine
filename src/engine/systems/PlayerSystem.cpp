@@ -1,22 +1,14 @@
 #include "systems/PlayerSystem.hpp"
+#include "components/BoxCollision.hpp"
+#include "components/CameraComponent.hpp"
+#include "components/InputComponent.hpp"
+#include "components/MovementComponent.hpp"
 #include "components/PlayerComponent.hpp"
 #include "components/TransformComponent.hpp"
 #include "systems/InputSystem.hpp"
 
-void PlayerSystem::update(EntityManager& manager, float deltaTime_s)
-{
-    ComponentsForEachFn<PlayerComponent, TransformComponent, MovementComponent, InputComponent, CameraComponent> const
-        forEachPlayer{[&manager](Entity entity, PlayerComponent& player, TransformComponent& transform,
-                                 MovementComponent& move, InputComponent& input, CameraComponent& cam) {
-            PlayerSystem::move(move, cam, input);
-            return true;
-        }};
-
-    manager.forEachComponents<PlayerComponent, TransformComponent, MovementComponent, InputComponent, CameraComponent>(
-        forEachPlayer);
-}
-
-void PlayerSystem::move(MovementComponent& move, CameraComponent& cam, InputComponent& input)
+static void movePlayer(MovementComponent& move, CameraComponent const& cam, InputComponent const& input,
+                       BoxCollision const& box)
 {
     glm::vec3 forwardVector{cam.cameraFront};
     forwardVector.y = 0.0F;
@@ -44,7 +36,7 @@ void PlayerSystem::move(MovementComponent& move, CameraComponent& cam, InputComp
     /// TODO: Set acceleration magnitude somewhere else
     constexpr float accelerationMag{50.0f};
     constexpr float decelerationMag{-50.0f};
-    constexpr float jumpMag{30.0f};
+    constexpr float jumpVelocity{15.0f};
     constexpr float epsilon{1.0f};
     if (moveAcceleration != glm::vec3{})
     {
@@ -66,10 +58,23 @@ void PlayerSystem::move(MovementComponent& move, CameraComponent& cam, InputComp
     }
 
     // Jump handling
-    if (InputSystem::isKeyPressedDown(input, GLFW_KEY_SPACE))
+    if (box.colliding && box.collisionAxis.y && InputSystem::isKeyPressedDown(input, GLFW_KEY_SPACE))
     {
-        moveAcceleration.y += jumpMag;
+        move.velocity.y += jumpVelocity;
     }
 
     move.acceleration += moveAcceleration;
+}
+
+void PlayerSystem::update(EntityManager& manager, float deltaTime_s)
+{
+    ComponentsForEachFn<PlayerComponent, TransformComponent, MovementComponent, InputComponent, CameraComponent,
+                        BoxCollision> const forEachPlayer{
+        [&manager](Entity entity, PlayerComponent& player, TransformComponent& transform, MovementComponent& move,
+                   InputComponent& input, CameraComponent& cam, BoxCollision& box) {
+            movePlayer(move, cam, input, box);
+            return true;
+        }};
+
+    manager.forEachComponents(forEachPlayer);
 }

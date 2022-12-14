@@ -108,7 +108,7 @@ int main()
         {
             MeshSystem::createCubeColored(
                 *manager,
-                {{static_cast<float>(rand()) / RAND_MAX * 100.0f, static_cast<float>(rand()) / RAND_MAX * 10.0f,
+                {{static_cast<float>(rand()) / RAND_MAX * 100.0f, static_cast<float>(rand()) / RAND_MAX * 2.0f - 2.0f,
                   static_cast<float>(rand()) / RAND_MAX * 100.0f}},
                 {1.0f, 0.0f, 0.0f, 0.0f});
         }
@@ -119,8 +119,6 @@ int main()
         std::queue<float> frameTimes;
         constexpr int frameTimesCount{400};
         float frameTimeSum{};
-        for (int i{}; i < frameTimesCount; i++)
-            frameTimes.push(0.0F);
 
         while (!glfwWindowShouldClose(window))
         {
@@ -135,19 +133,25 @@ int main()
             ImGui::NewFrame();
 
             std::chrono::time_point updateTime{std::chrono::steady_clock::now()};
-            float deltaTime_s{std::chrono::duration<float>(updateTime - lastTime).count()};
+            float deltaTime_s{
+                static_cast<float>(
+                    std::chrono::duration_cast<std::chrono::microseconds>(updateTime - lastTime).count()) /
+                1000000.0F};
             sysManager.updateSystems(deltaTime_s);
             lastTime = updateTime;
 
             {
                 // Get and display the average FPS
                 frameTimeSum += deltaTime_s;
-                frameTimeSum -= frameTimes.front();
-                frameTimes.pop();
+                if (frameTimes.size() == frameTimesCount)
+                {
+                    frameTimeSum -= frameTimes.front();
+                    frameTimes.pop();
+                }
                 frameTimes.push(deltaTime_s);
 
                 ImGui::Begin("Stats:");
-                ImGui::Text(std::string("FPS: " + std::to_string(1.0F / (frameTimeSum / frameTimesCount))).c_str());
+                ImGui::Text(std::string("FPS: " + std::to_string(1.0F / (frameTimeSum / frameTimes.size()))).c_str());
                 ImGui::End();
             }
 

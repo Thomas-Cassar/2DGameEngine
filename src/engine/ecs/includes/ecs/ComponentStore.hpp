@@ -14,7 +14,7 @@ class ComponentStore : public IComponentStore {
 public:
     void addComponent(Entity entity, T&& component)
     {
-        components.emplace_back(component);
+        components.emplace_back(std::move(component));
         entityToComponent.emplace(entity, components.size() - 1);
         componentToEntity.emplace(components.size() - 1, entity);
     }

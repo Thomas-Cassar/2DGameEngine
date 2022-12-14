@@ -2,6 +2,9 @@
 #include "components/MovementComponent.hpp"
 #include "components/TransformComponent.hpp"
 
+// Value to use for gravity for objects that experience gravity
+constexpr float gravity{-20.0f};
+
 void MovementSystem::update(EntityManager& manager, float deltaTime_s)
 {
     ComponentsForEachFn<MovementComponent, TransformComponent> const forEachMovement{
@@ -17,7 +20,7 @@ void MovementSystem::update(EntityManager& manager, float deltaTime_s)
 
             if (movement.doesGravity)
             {
-                movement.acceleration += glm::vec3{0.0F, -9.81F, 0.0F};
+                movement.acceleration += glm::vec3{0.0F, gravity, 0.0F};
             }
             // Velocities for this time step is approximated to the new velocity
             movement.velocity += movement.acceleration * deltaTime_s;
@@ -48,5 +51,5 @@ void MovementSystem::update(EntityManager& manager, float deltaTime_s)
             return true;
         }};
 
-    manager.forEachComponents<MovementComponent, TransformComponent>(forEachMovement);
+    manager.forEachComponents(forEachMovement);
 }

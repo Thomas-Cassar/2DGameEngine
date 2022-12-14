@@ -2,7 +2,6 @@
 #include "components/BoxCollision.hpp"
 #include "components/CameraComponent.hpp"
 #include "components/ColorComponent.hpp"
-#include "components/MovementComponent.hpp"
 #include "components/TextureComponent.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -17,7 +16,7 @@ void MeshSystem::update(EntityManager& manager, float deltaTime_s)
                                        cam.cameraFront + transform.position + cam.offset, cam.cameraUp);
             return false;
         }};
-    manager.forEachComponents<CameraComponent, TransformComponent>(forEachCamera);
+    manager.forEachComponents(forEachCamera);
 
     // Render every mesh
     ComponentsForEachFn<MeshComponent, TransformComponent> const forEachMesh{
@@ -50,7 +49,7 @@ void MeshSystem::update(EntityManager& manager, float deltaTime_s)
             glCheck(glDrawElements(GL_TRIANGLES, component.indexBuffer->getCount(), GL_UNSIGNED_INT, nullptr));
             return true;
         }};
-    manager.forEachComponents<MeshComponent, TransformComponent>(forEachMesh);
+    manager.forEachComponents(forEachMesh);
 }
 
 // clang-format off
@@ -71,7 +70,7 @@ constexpr unsigned int cubeIndicies[] = {
 
 // clang-format on
 
-Entity MeshSystem::createCubeColored(EntityManager& manager, TransformComponent const& pos, glm::vec4 const& color)
+Entity MeshSystem::createCubeColored(EntityManager& manager, TransformComponent&& pos, glm::vec4&& color)
 {
     Entity entity{manager.createEntity()};
     // clang-format off
@@ -87,28 +86,27 @@ Entity MeshSystem::createCubeColored(EntityManager& manager, TransformComponent 
     };
     // clang-format on
     MeshComponent mesh;
-    mesh.vertexBuffer = std::make_shared<VertexBuffer>(verArray, static_cast<unsigned int>(sizeof(verArray)));
+    mesh.vertexBuffer = std::make_unique<VertexBuffer>(verArray, static_cast<unsigned int>(sizeof(verArray)));
 
-    mesh.vertexBufferLayout = std::make_shared<VertexBufferLayout>();
+    mesh.vertexBufferLayout = std::make_unique<VertexBufferLayout>();
     mesh.vertexBufferLayout->push(GL_FLOAT, 3, false);
 
-    mesh.vertexArray = std::make_shared<VertexArray>();
+    mesh.vertexArray = std::make_unique<VertexArray>();
     mesh.vertexArray->addBuffer(*mesh.vertexBuffer, *mesh.vertexBufferLayout);
 
-    mesh.indexBuffer = std::make_shared<IndexBuffer>(
+    mesh.indexBuffer = std::make_unique<IndexBuffer>(
         cubeIndicies, static_cast<unsigned int>(sizeof(cubeIndicies) / sizeof(cubeIndicies[0])));
 
-    mesh.shader = std::make_shared<Shader>("shaders/Plane2DColored.vert", "shaders/Plane2DColored.frag");
+    mesh.shader = std::make_unique<Shader>("shaders/Plane2DColored.vert", "shaders/Plane2DColored.frag");
 
     manager.addComponent<MeshComponent>(entity, std::move(mesh));
-    manager.addComponent<TransformComponent>(entity, pos);
+    manager.addComponent<TransformComponent>(entity, std::move(pos));
     manager.addComponent<BoxCollision>(entity, {pos.scale.x, pos.scale.y, pos.scale.z});
-    manager.addComponent<MovementComponent>(entity, {false, false});
-    manager.addComponent<ColorComponent>(entity, color);
+    manager.addComponent<ColorComponent>(entity, std::move(color));
     return entity;
 }
 
-Entity MeshSystem::createCubeTextured(EntityManager& manager, TransformComponent const& pos, std::string const& texture)
+Entity MeshSystem::createCubeTextured(EntityManager& manager, TransformComponent&& pos, std::string const& texture)
 {
     Entity entity{manager.createEntity()};
     // clang-format off
@@ -124,24 +122,24 @@ Entity MeshSystem::createCubeTextured(EntityManager& manager, TransformComponent
     };
     // clang-format on
     MeshComponent mesh;
-    mesh.vertexBuffer = std::make_shared<VertexBuffer>(verArray, static_cast<unsigned int>(sizeof(verArray)));
+    mesh.vertexBuffer = std::make_unique<VertexBuffer>(verArray, static_cast<unsigned int>(sizeof(verArray)));
 
-    mesh.vertexBufferLayout = std::make_shared<VertexBufferLayout>();
+    mesh.vertexBufferLayout = std::make_unique<VertexBufferLayout>();
     mesh.vertexBufferLayout->push(GL_FLOAT, 3, false);
     mesh.vertexBufferLayout->push(GL_FLOAT, 2, false);
 
-    mesh.vertexArray = std::make_shared<VertexArray>();
+    mesh.vertexArray = std::make_unique<VertexArray>();
     mesh.vertexArray->addBuffer(*mesh.vertexBuffer, *mesh.vertexBufferLayout);
 
-    mesh.indexBuffer = std::make_shared<IndexBuffer>(
+    mesh.indexBuffer = std::make_unique<IndexBuffer>(
         cubeIndicies, static_cast<unsigned int>(sizeof(cubeIndicies) / sizeof(cubeIndicies[0])));
 
-    mesh.shader = std::make_shared<Shader>("shaders/Plane2DTextured.vert", "shaders/Plane2DTextured.frag");
+    mesh.shader = std::make_unique<Shader>("shaders/Plane2DTextured.vert", "shaders/Plane2DTextured.frag");
     mesh.shader->bind();
     mesh.shader->setUniform1i("texture1", 0);
     manager.addComponent<TextureComponent>(entity, {texture});
 
     manager.addComponent<MeshComponent>(entity, std::move(mesh));
-    manager.addComponent<TransformComponent>(entity, pos);
+    manager.addComponent<TransformComponent>(entity, std::move(pos));
     return entity;
 }

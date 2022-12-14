@@ -153,8 +153,8 @@ static bool collisionCheck(TransformComponent const& transformA, BoxCollision co
 
 // TODO: Update with more complex collision resolution
 // Currently resolves collision between a movable and stationary object
-static void resolveCollision(TransformComponent& transformA, MovementComponent& moveA, BoxCollision const& boxA,
-                             TransformComponent& transformB, BoxCollision const& boxB, float deltaTime_s)
+static void resolveCollision(TransformComponent& transformA, MovementComponent& moveA, BoxCollision& boxA,
+                             TransformComponent& transformB, BoxCollision& boxB, float deltaTime_s)
 {
     if (moveA.canMove)
     {
@@ -170,6 +170,7 @@ static void resolveCollision(TransformComponent& transformA, MovementComponent& 
             if (!collisionCheck(transformA, boxA, transformB, boxB))
             {
                 moveA.velocity.y = 0.0f;
+                boxA.collisionAxis = {false, true, false};
                 return;
             }
         }
@@ -181,6 +182,7 @@ static void resolveCollision(TransformComponent& transformA, MovementComponent& 
             if (!collisionCheck(transformA, boxA, transformB, boxB))
             {
                 moveA.velocity.x = 0.0f;
+                boxA.collisionAxis = {true, false, false};
                 return;
             }
         }
@@ -192,6 +194,7 @@ static void resolveCollision(TransformComponent& transformA, MovementComponent& 
             if (!collisionCheck(transformA, boxA, transformB, boxB))
             {
                 moveA.velocity.z = 0.0f;
+                boxA.collisionAxis = {false, false, true};
                 return;
             }
         }
@@ -205,6 +208,7 @@ static void resolveCollision(TransformComponent& transformA, MovementComponent& 
             {
                 moveA.velocity.y = 0.0f;
                 moveA.velocity.x = 0.0f;
+                boxA.collisionAxis = {true, true, false};
                 return;
             }
         }
@@ -218,6 +222,7 @@ static void resolveCollision(TransformComponent& transformA, MovementComponent& 
             {
                 moveA.velocity.y = 0.0f;
                 moveA.velocity.z = 0.0f;
+                boxA.collisionAxis = {false, true, true};
                 return;
             }
         }
@@ -231,6 +236,7 @@ static void resolveCollision(TransformComponent& transformA, MovementComponent& 
             {
                 moveA.velocity.x = 0.0f;
                 moveA.velocity.z = 0.0f;
+                boxA.collisionAxis = {true, false, true};
                 return;
             }
         }
@@ -242,6 +248,7 @@ static void resolveCollision(TransformComponent& transformA, MovementComponent& 
             if (!collisionCheck(transformA, boxA, transformB, boxB))
             {
                 moveA.velocity = {};
+                boxA.collisionAxis = {true, true, true};
                 return;
             }
         }
@@ -274,7 +281,7 @@ void CollisionSystem::update(EntityManager& manager, float deltaTime_s)
                     {
                         boxA.colliding = true;
                         boxB.colliding = true;
-                        if (manager.hasComponents<MovementComponent>(entityA))
+                        if (!boxB.canOverlap && manager.hasComponents<MovementComponent>(entityA))
                         {
                             MovementComponent& moveA{manager.getComponent<MovementComponent>(entityA)};
                             resolveCollision(transformA, moveA, boxA, transformB, boxB, deltaTime_s);
@@ -284,10 +291,10 @@ void CollisionSystem::update(EntityManager& manager, float deltaTime_s)
                     return true;
                 }};
 
-            manager.forEachComponents<BoxCollision, TransformComponent>(forEachCollisionInner);
+            manager.forEachComponents(forEachCollisionInner);
             return true;
         }};
 
-    manager.forEachComponents<BoxCollision, TransformComponent>(setCollidingFalse);
+    manager.forEachComponents(setCollidingFalse);
     manager.forEachComponents(forEachPlayerCollision);
 }

@@ -42,7 +42,7 @@ void InputSystem::update(EntityManager& manager, float deltaTime_s)
         // Only one input component for now return immediately
         return false;
     }};
-    manager.forEachComponents<InputComponent>(forEachInput);
+    manager.forEachComponents(forEachInput);
 }
 
 bool InputSystem::isKeyPressedDown(InputComponent const& input, int key)

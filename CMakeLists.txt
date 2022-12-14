@@ -113,7 +113,7 @@ target_link_libraries(graphics core libglew_static stb glm glfw)
 file(GLOB ECS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/ecs/*.cpp)
 add_library(ecs ${ECS_SRCS})
 target_include_directories(ecs PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/ecs/includes)
-target_link_libraries(ecs core)
+target_link_libraries(ecs core imgui)
 
 #Components Lib
 file(GLOB COMPONENTS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/components/*.cpp)

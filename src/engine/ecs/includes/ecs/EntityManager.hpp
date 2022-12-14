@@ -48,7 +48,7 @@ public:
         {
             throw std::exception("Tried to add a component without registering!");
         }
-        componentStore->addComponent(entity, component);
+        componentStore->addComponent(entity, std::move(component));
     }
 
     template <typename T>

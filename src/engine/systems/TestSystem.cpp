@@ -31,6 +31,6 @@ void TestSystem::update(EntityManager& manager, float deltaTime_s)
             return true;
         }};
 
-    manager.forEachComponents<TransformComponent, MeshComponent, MovementComponent>(forEachTransform);
+    manager.forEachComponents(forEachTransform);
     ImGui::End();
 }
