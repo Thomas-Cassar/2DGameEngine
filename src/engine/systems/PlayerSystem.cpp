@@ -7,6 +7,8 @@
 #include "components/TransformComponent.hpp"
 #include "systems/InputSystem.hpp"
 
+#include "glfw/glfw3.h"
+
 static void movePlayer(MovementComponent& move, CameraComponent const& cam, InputComponent const& input,
                        BoxCollision const& box)
 {

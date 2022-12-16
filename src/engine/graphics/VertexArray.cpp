@@ -5,7 +5,7 @@ VertexArray::VertexArray() { glCheck(glGenVertexArrays(1, &vaID)); }
 
 VertexArray::~VertexArray() { glCheck(glDeleteVertexArrays(1, &vaID)); }
 
-void VertexArray::addBuffer(const VertexBuffer &vb, const VertexBufferLayout &layout)
+void VertexArray::addBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
 {
     // Bind the array and buffer
     bind();
@@ -17,7 +17,7 @@ void VertexArray::addBuffer(const VertexBuffer &vb, const VertexBufferLayout &la
     {
         glCheck(glEnableVertexAttribArray(i));
         glCheck(glVertexAttribPointer(i, elements[i].count, elements[i].type, elements[i].normalized,
-                                      layout.getStride(), (const void *)offset));
+                                      layout.getStride(), (const void*)offset));
         offset += elements[i].count * VertexBufferElement::getSizeOfGLType(elements[i].type);
     }
 }

@@ -1,11 +1,11 @@
 #pragma once
-#include "GLFW/glfw3.h"
-
 #include "components/IComponent.hpp"
 #include "glm/glm.hpp"
 
 #include <memory>
 #include <unordered_map>
+
+struct GLFWwindow;
 
 struct InputComponent : public IComponent {
     GLFWwindow* windowPtr;

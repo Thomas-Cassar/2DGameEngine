@@ -6,6 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
 
@@ -63,7 +64,7 @@ public:
     }
 
     template <typename T, typename... Args>
-    bool forEachComponents(ComponentsForEachFn<T, Args...> forEachFn)
+    bool forEachComponents(ComponentsForEachFn<T, Args...> const& forEachFn)
     {
         std::shared_ptr<ComponentStore<T>> componentStore{getComponentStore<T>()};
         if (componentStore == nullptr)
@@ -72,11 +73,17 @@ public:
         }
 
         ComponentForEachFn<T> const checkedForEachFn{[this, &forEachFn](Entity entity, T& component) {
-            if (hasComponents<Args...>(entity))
+            std::tuple<Args*...> componentPack = std::tuple<Args*...>(getComponentPtr<Args>(entity)...);
+            if (isTupleNull(componentPack))
             {
-                return forEachFn(entity, component, getComponent<Args>(entity)...);
+                return true;
             }
-            return true;
+
+            auto const ptrTupleToRef{
+                [](Args*... arg) -> std::tuple<Args&...> { return std::tie<Args&...>((*arg)...); }};
+            std::tuple<Args&...> componentRefPack = std::apply(ptrTupleToRef, componentPack);
+
+            return std::apply(forEachFn, std::tuple_cat(std::tie(entity, component), std::move(componentRefPack)));
         }};
 
         return componentStore->forEach(checkedForEachFn);
@@ -125,5 +132,35 @@ private:
         return componentStore != std::end(typeToComponentStore)
                    ? std::dynamic_pointer_cast<ComponentStore<T>>(componentStore->second)
                    : nullptr;
+    }
+
+    template <typename T>
+    T* getComponentPtr(Entity entity)
+    {
+        std::shared_ptr<ComponentStore<T>> componentStore{getComponentStore<T>()};
+        if (componentStore == nullptr)
+        {
+            std::stringstream message;
+            message << "Could not retrieve component " << typeid(T).name() << " for entity with ID " << entity;
+            throw std::exception(message.str().c_str());
+        }
+        return componentStore->getComponentPtr(entity);
+    }
+
+    template <size_t I = 0, typename... Args>
+    bool isTupleNull(std::tuple<Args*...> const& tup)
+    {
+        if constexpr (I == sizeof...(Args))
+        {
+            return false;
+        }
+        else if (std::get<I>(tup) == nullptr)
+        {
+            return true;
+        }
+        else
+        {
+            return isTupleNull<I + 1, Args...>(tup);
+        }
     }
 };

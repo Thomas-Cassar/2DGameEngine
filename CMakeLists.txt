@@ -1,15 +1,12 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(GameEngine VERSION 0.1.0)
 
-# Compile with C++ 20
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
-# Needed for MSVC
-set(CMAKE_CXX_STANDARD 20)
-
 if(WIN32)
 set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/windows/${CMAKE_GENERATOR_PLATFORM})
+set(CMAKE_CXX_STANDARD 20)
 elseif(UNIX)
 set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/linux/${CMAKE_GENERATOR_PLATFORM})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 else()
 set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/other/${CMAKE_GENERATOR_PLATFORM})
 endif()
