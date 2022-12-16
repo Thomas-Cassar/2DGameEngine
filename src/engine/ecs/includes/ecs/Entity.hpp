@@ -1,4 +1,4 @@
 #pragma once
-#include "ecs/IdGenerator.hpp"
+#include "core/IdGenerator.hpp"
 
 using Entity = Id;

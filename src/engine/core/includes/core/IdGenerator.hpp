@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 
-using Id = uint64_t;
+using Id = size_t;
 
 class IdGenerator {
 public:

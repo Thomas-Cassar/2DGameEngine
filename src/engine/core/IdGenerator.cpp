@@ -1,4 +1,4 @@
-#include "ecs/IdGenerator.hpp"
+#include "core/IdGenerator.hpp"
 #include "core/core.hpp"
 #include <iostream>
 #include <limits>

@@ -2,11 +2,7 @@
 
 EntityManager::EntityManager() noexcept { componentStores.reserve(RESERVED_COMPONENT_STORES); }
 
-Entity EntityManager::createEntity()
-{
-    /// TODO: Keep track of Ids?
-    return idGenerator.getNewId();
-}
+Entity EntityManager::createEntity() { return entityIdGenerator.getNewId(); }
 
 void EntityManager::destroyEntity(Entity entity)
 {

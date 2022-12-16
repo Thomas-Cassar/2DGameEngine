@@ -1,7 +1,7 @@
 #pragma once
+#include "core/IdGenerator.hpp"
 #include "ecs/ComponentStore.hpp"
 #include "ecs/Entity.hpp"
-#include "ecs/IdGenerator.hpp"
 #include <exception>
 #include <iostream>
 #include <memory>
@@ -38,7 +38,7 @@ public:
 
         std::shared_ptr<ComponentStore<T>> newComponentStore{std::make_shared<ComponentStore<T>>()};
         componentStores.emplace_back(newComponentStore);
-        typeToComponentStore.emplace(typeid(T).hash_code(), newComponentStore);
+        typeToComponentStore.emplace(getComponentIdx<T>(), newComponentStore);
     }
 
     template <typename T>
@@ -122,12 +122,29 @@ public:
 private:
     std::vector<std::shared_ptr<IComponentStore>> componentStores;
     std::unordered_map<size_t, std::shared_ptr<IComponentStore>> typeToComponentStore;
-    IdGenerator idGenerator;
+    IdGenerator entityIdGenerator;
+    IdGenerator componentIdGenerator;
+
+    template <typename T>
+    size_t getComponentIdx()
+    {
+        static_assert(std::is_base_of<IComponent, T>::value, "Components must be derived from IComponent");
+        static size_t idx = 0;
+        static bool idGenerated = false;
+
+        if (!idGenerated)
+        {
+            idx = componentIdGenerator.getNewId();
+            idGenerated = true;
+        }
+
+        return idx;
+    }
 
     template <typename T>
     std::shared_ptr<ComponentStore<T>> getComponentStore()
     {
-        size_t const hash{typeid(T).hash_code()};
+        size_t const hash{getComponentIdx<T>()};
         auto const& componentStore{typeToComponentStore.find(hash)};
         return componentStore != std::end(typeToComponentStore)
                    ? std::dynamic_pointer_cast<ComponentStore<T>>(componentStore->second)
