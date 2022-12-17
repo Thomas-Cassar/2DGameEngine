@@ -1,6 +1,4 @@
 #pragma once
-
-#include "components/TransformComponent.hpp"
 #include "ecs/EntityManager.hpp"
 #include "ecs/ISystem.hpp"
 

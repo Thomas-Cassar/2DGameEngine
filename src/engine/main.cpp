@@ -1,4 +1,4 @@
-#include "graphics/Graphics.hpp"
+#include "gl/glew.h"
 
 #include "GLFW/glfw3.h"
 #include "backends/imgui_impl_glfw.h"
@@ -8,13 +8,8 @@
 #include <iostream>
 #include <queue>
 
-#include "components/BoxCollision.hpp"
-#include "components/CameraComponent.hpp"
-#include "components/Common.hpp"
-#include "components/InputComponent.hpp"
-#include "components/MovementComponent.hpp"
-#include "components/PlayerComponent.hpp"
-#include "components/TransformComponent.hpp"
+import Component;
+
 #include "ecs/EntityManager.hpp"
 #include "ecs/SystemManager.hpp"
 #include "systems/Common.hpp"
@@ -90,16 +85,16 @@ int main()
 
         std::shared_ptr<EntityManager> manager{std::make_shared<EntityManager>()};
         SystemManager sysManager(manager);
-        registerComponents(*manager);
+        Component::registerComponents(*manager);
         registerSystems(sysManager);
 
         Entity player{manager->createEntity()};
-        manager->addComponent<CameraComponent>(player, {{}});
-        manager->addComponent<TransformComponent>(player, {{0.0f, 4.0f, 0.0f}});
-        manager->addComponent<InputComponent>(player, {window});
-        manager->addComponent<MovementComponent>(player, {true, true, 5.0F});
-        manager->addComponent<PlayerComponent>(player, {});
-        manager->addComponent<BoxCollision>(player, {1.0f, 2.0f, 1.0f});
+        manager->addComponent<Component::CameraComponent>(player, {{}});
+        manager->addComponent<Component::TransformComponent>(player, {{0.0f, 4.0f, 0.0f}});
+        manager->addComponent<Component::InputComponent>(player, {window});
+        manager->addComponent<Component::MovementComponent>(player, {true, true, 5.0F});
+        manager->addComponent<Component::PlayerComponent>(player, {});
+        manager->addComponent<Component::BoxCollision>(player, {1.0f, 2.0f, 1.0f});
 
         Entity coloredCube1{MeshSystem::createCubeColored(*manager, {{0.0F, 0.0F, 0.0F}, {}, {5.0F, 1.0F, 5.0F}},
                                                           {1.0F, 1.0F, 1.0F, 1.0F})};

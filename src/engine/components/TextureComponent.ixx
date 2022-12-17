@@ -1,14 +1,16 @@
-#pragma once
+export module Component:TextureComponent;
 
-#include "components/IComponent.hpp"
-#include "graphics/Texture2D.hpp"
+import :IComponent;
+import Graphics;
+import <memory>;
+import <string>;
 
-#include <memory>
+namespace Component
+{
+export struct TextureComponent : public IComponent {
+    std::unique_ptr<Graphics::Texture2D> tex;
 
-struct TextureComponent : public IComponent {
-    std::unique_ptr<Texture2D> tex;
-
-    TextureComponent(std::string const& texture) : tex(std::make_unique<Texture2D>(texture)) {}
+    TextureComponent(std::string const& texture) : tex(std::make_unique<Graphics::Texture2D>(texture)) {}
 
     TextureComponent(TextureComponent const&) = delete;
     TextureComponent& operator=(TextureComponent const&) = delete;
@@ -24,3 +26,4 @@ struct TextureComponent : public IComponent {
         return *this;
     }
 };
+} // namespace Component

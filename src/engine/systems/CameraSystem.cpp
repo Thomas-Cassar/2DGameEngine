@@ -3,8 +3,6 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
-
-#include "components/InputComponent.hpp"
 #include "systems/CameraSystem.hpp"
 #include "systems/InputSystem.hpp"
 
@@ -15,9 +13,10 @@ constexpr float kPitchMax{glm::half_pi<float>() - 0.01F};
 
 void CameraSystem::update(EntityManager& manager, float deltaTime_s)
 {
-    ComponentsForEachFn<CameraComponent, TransformComponent, InputComponent> const forEachCamera{
-        [&manager, &deltaTime_s](Entity entity, CameraComponent& camera, TransformComponent& transform,
-                                 InputComponent& input) {
+    ComponentsForEachFn<Component::CameraComponent, Component::TransformComponent, Component::InputComponent> const
+        forEachCamera{[&manager, &deltaTime_s](Entity entity, Component::CameraComponent& camera,
+                                               Component::TransformComponent& transform,
+                                               Component::InputComponent& input) {
             int width, height;
             glfwGetWindowSize(input.windowPtr, &width, &height);
             updateCameraProjectionMatrix(camera, kFov, static_cast<float>(width), static_cast<float>(height));
@@ -41,17 +40,19 @@ void CameraSystem::update(EntityManager& manager, float deltaTime_s)
     manager.forEachComponents(forEachCamera);
 }
 
-void CameraSystem::moveForward(CameraComponent const& camera, TransformComponent& transform, float distance)
+void CameraSystem::moveForward(Component::CameraComponent const& camera, Component::TransformComponent& transform,
+                               float distance)
 {
     transform.position += distance * camera.cameraFront;
 }
 
-void CameraSystem::moveRight(CameraComponent const& camera, TransformComponent& transform, float distance)
+void CameraSystem::moveRight(Component::CameraComponent const& camera, Component::TransformComponent& transform,
+                             float distance)
 {
     transform.position += distance * glm::normalize(glm::cross(camera.cameraFront, camera.cameraUp));
 }
 
-void CameraSystem::turnCameraFromInput(CameraComponent& camera, TransformComponent& transform,
+void CameraSystem::turnCameraFromInput(Component::CameraComponent& camera, Component::TransformComponent& transform,
                                        glm::dvec2 const& deltaInput)
 {
     // Change in input x axis changes yaw and input y axis changes pitch
@@ -71,7 +72,7 @@ void CameraSystem::turnCameraFromInput(CameraComponent& camera, TransformCompone
     transform.rotation = glm::quat({0.0F, -camera.targetYaw_rad, 0.0F});
 }
 
-void CameraSystem::updateCameraProjectionMatrix(CameraComponent& camera, float const fov, float const width,
+void CameraSystem::updateCameraProjectionMatrix(Component::CameraComponent& camera, float const fov, float const width,
                                                 float const height)
 {
     camera.proj = glm::perspective(glm::radians(fov), width / height, 0.1f, 1000.0f);

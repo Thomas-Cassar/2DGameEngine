@@ -1,20 +1,18 @@
-#pragma once
-
-#include "components/IComponent.hpp"
-#include "graphics/IndexBuffer.hpp"
-#include "graphics/Shader.hpp"
-#include "graphics/VertexArray.hpp"
-#include "graphics/VertexBuffer.hpp"
-#include "graphics/VertexBufferLayout.hpp"
-
+module;
 #include <memory>
+export module Component:MeshComponent;
+import :IComponent;
+import Graphics;
 
-struct MeshComponent : public IComponent {
-    std::unique_ptr<VertexBuffer> vertexBuffer;
-    std::unique_ptr<VertexBufferLayout> vertexBufferLayout;
-    std::unique_ptr<VertexArray> vertexArray;
-    std::unique_ptr<IndexBuffer> indexBuffer;
-    std::unique_ptr<Shader> shader;
+namespace Component
+{
+
+export struct MeshComponent : public IComponent {
+    std::unique_ptr<Graphics::VertexBuffer> vertexBuffer;
+    std::unique_ptr<Graphics::VertexBufferLayout> vertexBufferLayout;
+    std::unique_ptr<Graphics::VertexArray> vertexArray;
+    std::unique_ptr<Graphics::IndexBuffer> indexBuffer;
+    std::unique_ptr<Graphics::Shader> shader;
 
     MeshComponent(MeshComponent const&) = delete;
     MeshComponent& operator=(MeshComponent const&) = delete;
@@ -41,3 +39,4 @@ struct MeshComponent : public IComponent {
         return *this;
     }
 };
+} // namespace Component

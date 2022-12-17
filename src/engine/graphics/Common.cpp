@@ -1,12 +1,14 @@
-#include "graphics/Graphics.hpp"
+#include "graphics/Common.hpp"
 
+namespace Graphics
+{
 void glClearErrors()
 {
     while (glGetError() != GL_NO_ERROR)
         ;
 }
 
-bool glLogErrors(const char *function, const char *file, int line)
+bool glLogErrors(const char* function, const char* file, int line)
 {
     while (GLenum error = glGetError())
     {
@@ -16,3 +18,4 @@ bool glLogErrors(const char *function, const char *file, int line)
     }
     return true;
 }
+} // namespace Graphics

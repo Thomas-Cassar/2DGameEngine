@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.12.0)
 project(GameEngine VERSION 0.1.0)
 
 if(WIN32)
@@ -102,7 +102,8 @@ target_link_libraries(core)
 
 #Graphics Lib
 file(GLOB GRAPHICS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/*.cpp)
-add_library(graphics ${GRAPHICS_SRCS})
+file(GLOB GRAPHICS_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/*.ixx)
+add_library(graphics ${GRAPHICS_SRCS} ${GRAPHICS_MODULES})
 target_include_directories(graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/includes)
 target_link_libraries(graphics core libglew_static stb glm glfw)
 
@@ -113,10 +114,10 @@ target_include_directories(ecs PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/ecs
 target_link_libraries(ecs core imgui)
 
 #Components Lib
-file(GLOB COMPONENTS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/components/*.cpp)
-add_library(components ${COMPONENTS_SRCS})
+file(GLOB COMPONENTS_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/components/*.ixx)
+add_library(components ${COMPONENTS_MODULES})
 target_include_directories(components PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/components/includes)
-target_link_libraries(components core glm ecs graphics)
+target_link_libraries(components core glm ecs graphics glfw)
 
 #Systems Lib
 file(GLOB SYSTEMS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/systems/*.cpp)
@@ -125,7 +126,7 @@ target_include_directories(systems PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine
 target_link_libraries(systems core glm components ecs imgui)
 
 #Link libs to main executable
-target_link_libraries(GameEngine glfw libglew_static graphics glm ecs core systems imgui)
+target_link_libraries(GameEngine glfw libglew_static glm ecs core systems imgui components graphics)
 
 #Add shaders to build dir
 file(GLOB SHADER_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/shaders/*)

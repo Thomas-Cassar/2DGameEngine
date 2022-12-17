@@ -1,14 +1,17 @@
 #include "systems/MovementSystem.hpp"
-#include "components/MovementComponent.hpp"
-#include "components/TransformComponent.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/quaternion.hpp"
+import Component;
 
 // Value to use for gravity for objects that experience gravity
 constexpr float gravity{-20.0f};
 
 void MovementSystem::update(EntityManager& manager, float deltaTime_s)
 {
-    ComponentsForEachFn<MovementComponent, TransformComponent> const forEachMovement{
-        [&manager, &deltaTime_s](Entity entity, MovementComponent& movement, TransformComponent& transform) {
+    ComponentsForEachFn<Component::MovementComponent, Component::TransformComponent> const forEachMovement{
+        [&manager, &deltaTime_s](Entity entity, Component::MovementComponent& movement,
+                                 Component::TransformComponent& transform) {
             if (!movement.canMove)
             {
                 movement.acceleration = {};

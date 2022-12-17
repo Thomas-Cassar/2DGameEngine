@@ -1,8 +1,12 @@
-#pragma once
-#include "components/IComponent.hpp"
+module;
 #include "glm/glm.hpp"
+export module Component:MovementComponent;
 
-struct MovementComponent : public IComponent {
+import :IComponent;
+
+namespace Component
+{
+export struct MovementComponent : public IComponent {
     glm::vec3 velocity = {};
     float terminalVelocityVertical = INFINITY;
     float terminalVelocityHorizontal = INFINITY;
@@ -21,3 +25,4 @@ struct MovementComponent : public IComponent {
     {
     }
 };
+} // namespace Component

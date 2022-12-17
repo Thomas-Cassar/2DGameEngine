@@ -1,14 +1,18 @@
 #include "systems/TestSystem.hpp"
-#include "components/MeshComponent.hpp"
-#include "components/MovementComponent.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/quaternion.hpp"
 #include "imgui.h"
+
+import Component;
 
 void TestSystem::update(EntityManager& manager, float deltaTime_s)
 {
     ImGui::Begin("Debug Window");
     int i{};
-    ComponentsForEachFn<TransformComponent, MeshComponent, MovementComponent> const forEachTransform{
-        [&manager, &i](Entity entity, TransformComponent& transform, MeshComponent& mesh, MovementComponent& move) {
+    ComponentsForEachFn<Component::TransformComponent, Component::MeshComponent, Component::MovementComponent> const
+        forEachTransform{[&manager, &i](Entity entity, Component::TransformComponent& transform,
+                                        Component::MeshComponent& mesh, Component::MovementComponent& move) {
             float pos[3]{transform.position.x, transform.position.y, transform.position.z};
             ImGui::SliderFloat3(std::string("Cube Position " + std::to_string(i)).c_str(), pos, -15.0F, 15.0F);
             transform.position.x = pos[0];

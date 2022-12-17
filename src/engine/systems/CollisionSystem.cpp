@@ -1,14 +1,10 @@
 #include "systems/CollisionSystem.hpp"
-#include "components/BoxCollision.hpp"
-#include "components/ColorComponent.hpp"
-#include "components/MovementComponent.hpp"
-#include "components/PlayerComponent.hpp"
-#include "components/TransformComponent.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
+import Component;
 
-static bool collisionCheck(TransformComponent const& transformA, BoxCollision const& boxA,
-                           TransformComponent const& transformB, BoxCollision const& boxB)
+static bool collisionCheck(Component::TransformComponent const& transformA, Component::BoxCollision const& boxA,
+                           Component::TransformComponent const& transformB, Component::BoxCollision const& boxB)
 {
     float maxA = std::max(boxA.height, std::max(boxA.width, boxA.depth));
     float maxB = std::max(boxB.height, std::max(boxB.width, boxB.depth));
@@ -153,8 +149,9 @@ static bool collisionCheck(TransformComponent const& transformA, BoxCollision co
 
 // TODO: Update with more complex collision resolution
 // Currently resolves collision between a movable and stationary object
-static void resolveCollision(TransformComponent& transformA, MovementComponent& moveA, BoxCollision& boxA,
-                             TransformComponent& transformB, BoxCollision& boxB, float deltaTime_s)
+static void resolveCollision(Component::TransformComponent& transformA, Component::MovementComponent& moveA,
+                             Component::BoxCollision& boxA, Component::TransformComponent& transformB,
+                             Component::BoxCollision& boxB, float deltaTime_s)
 {
     if (moveA.canMove)
     {
@@ -258,19 +255,20 @@ static void resolveCollision(TransformComponent& transformA, MovementComponent& 
 
 void CollisionSystem::update(EntityManager& manager, float deltaTime_s)
 {
-    ComponentsForEachFn<BoxCollision, TransformComponent> const setCollidingFalse{
-        [](Entity entity, BoxCollision& box, TransformComponent& transform) {
+    ComponentsForEachFn<Component::BoxCollision, Component::TransformComponent> const setCollidingFalse{
+        [](Entity entity, Component::BoxCollision& box, Component::TransformComponent& transform) {
             box.colliding = false;
             return true;
         }};
 
     // Check collision for every player
-    ComponentsForEachFn<BoxCollision, TransformComponent, PlayerComponent> const forEachPlayerCollision{
-        [&manager, &deltaTime_s](Entity entityA, BoxCollision& boxA, TransformComponent& transformA,
-                                 PlayerComponent& player) {
-            ComponentsForEachFn<BoxCollision, TransformComponent> const forEachCollisionInner{
-                [&manager, &entityA, &boxA, &transformA, &deltaTime_s](Entity entityB, BoxCollision& boxB,
-                                                                       TransformComponent& transformB) {
+    ComponentsForEachFn<Component::BoxCollision, Component::TransformComponent, Component::PlayerComponent> const
+        forEachPlayerCollision{[&manager, &deltaTime_s](Entity entityA, Component::BoxCollision& boxA,
+                                                        Component::TransformComponent& transformA,
+                                                        Component::PlayerComponent& player) {
+            ComponentsForEachFn<Component::BoxCollision, Component::TransformComponent> const forEachCollisionInner{
+                [&manager, &entityA, &boxA, &transformA, &deltaTime_s](Entity entityB, Component::BoxCollision& boxB,
+                                                                       Component::TransformComponent& transformB) {
                     // Don't check self collision
                     if (entityA == entityB)
                     {
@@ -281,9 +279,10 @@ void CollisionSystem::update(EntityManager& manager, float deltaTime_s)
                     {
                         boxA.colliding = true;
                         boxB.colliding = true;
-                        if (!boxB.canOverlap && manager.hasComponents<MovementComponent>(entityA))
+                        if (!boxB.canOverlap && manager.hasComponents<Component::MovementComponent>(entityA))
                         {
-                            MovementComponent& moveA{manager.getComponent<MovementComponent>(entityA)};
+                            Component::MovementComponent& moveA{
+                                manager.getComponent<Component::MovementComponent>(entityA)};
                             resolveCollision(transformA, moveA, boxA, transformB, boxB, deltaTime_s);
                         }
                     }

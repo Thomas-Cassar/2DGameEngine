@@ -1,13 +1,16 @@
-#pragma once
-#include "components/IComponent.hpp"
+module;
+#include "glfw/glfw3.h"
 #include "glm/glm.hpp"
-
 #include <memory>
 #include <unordered_map>
+export module Component:InputComponent;
 
-struct GLFWwindow;
+import :IComponent;
 
-struct InputComponent : public IComponent {
+namespace Component
+{
+
+export struct InputComponent : public IComponent {
     GLFWwindow* windowPtr;
     /**Current mouse position */
     glm::dvec2 mousePos;
@@ -24,3 +27,4 @@ struct InputComponent : public IComponent {
     {
     }
 };
+} // namespace Component

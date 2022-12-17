@@ -1,9 +1,13 @@
-#pragma once
-
-#include "components/IComponent.hpp"
+module;
 #include "glm/glm.hpp"
+export module Component:CameraComponent;
 
-struct CameraComponent : public IComponent {
+import :IComponent;
+
+namespace Component
+{
+
+export struct CameraComponent : public IComponent {
     /// Point that camera is looking at (normalized)
     glm::vec3 cameraFront;
     /// Vector that points to up direction
@@ -19,3 +23,4 @@ struct CameraComponent : public IComponent {
 
     CameraComponent(glm::vec3 offset) : offset(offset) {}
 };
+} // namespace Component

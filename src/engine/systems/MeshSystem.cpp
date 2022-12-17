@@ -1,16 +1,18 @@
-#include "systems/MeshSystem.hpp"
-#include "components/BoxCollision.hpp"
-#include "components/CameraComponent.hpp"
-#include "components/ColorComponent.hpp"
-#include "components/TextureComponent.hpp"
+#include "gl/glew.h"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/quaternion.hpp"
+
+#include "systems/MeshSystem.hpp"
+import Graphics;
 
 void MeshSystem::update(EntityManager& manager, float deltaTime_s)
 {
     // Get projection*view matrix from the first camera available
     glm::mat4 projectionViewMatrix;
-    ComponentsForEachFn<CameraComponent, TransformComponent> const forEachCamera{
-        [&manager, &projectionViewMatrix](Entity entity, CameraComponent& cam, TransformComponent& transform) {
+    ComponentsForEachFn<Component::CameraComponent, Component::TransformComponent> const forEachCamera{
+        [&manager, &projectionViewMatrix](Entity entity, Component::CameraComponent& cam,
+                                          Component::TransformComponent& transform) {
             projectionViewMatrix =
                 cam.proj * glm::lookAt(transform.position + cam.offset,
                                        cam.cameraFront + transform.position + cam.offset, cam.cameraUp);
@@ -19,17 +21,18 @@ void MeshSystem::update(EntityManager& manager, float deltaTime_s)
     manager.forEachComponents(forEachCamera);
 
     // Render every mesh
-    ComponentsForEachFn<MeshComponent, TransformComponent> const forEachMesh{
-        [&manager, &projectionViewMatrix](Entity entity, MeshComponent& component, TransformComponent& transform) {
+    ComponentsForEachFn<Component::MeshComponent, Component::TransformComponent> const forEachMesh{
+        [&manager, &projectionViewMatrix](Entity entity, Component::MeshComponent& component,
+                                          Component::TransformComponent& transform) {
             if (component.vertexBuffer == nullptr || component.vertexBufferLayout == nullptr ||
                 component.vertexArray == nullptr || component.indexBuffer == nullptr || component.shader == nullptr)
             {
                 return true;
             }
             component.shader->bind();
-            if (manager.hasComponents<ColorComponent>(entity))
+            if (manager.hasComponents<Component::ColorComponent>(entity))
             {
-                glm::vec4& color{manager.getComponent<ColorComponent>(entity).color};
+                glm::vec4& color{manager.getComponent<Component::ColorComponent>(entity).color};
                 component.shader->setUniform4f("COLOR", color.x, color.y, color.z, color.w);
             }
             glm::mat4 modelMat{glm::translate(glm::mat4(1.0F), transform.position)};
@@ -41,12 +44,13 @@ void MeshSystem::update(EntityManager& manager, float deltaTime_s)
             component.vertexArray->bind();
             component.indexBuffer->bind();
 
-            if (manager.hasComponents<TextureComponent>(entity))
+            if (manager.hasComponents<Component::TextureComponent>(entity))
             {
-                manager.getComponent<TextureComponent>(entity).tex->bind();
+                manager.getComponent<Component::TextureComponent>(entity).tex->bind();
             }
 
-            glCheck(glDrawElements(GL_TRIANGLES, component.indexBuffer->getCount(), GL_UNSIGNED_INT, nullptr));
+            Graphics::drawBoundBuffers(component.indexBuffer->getCount());
+
             return true;
         }};
     manager.forEachComponents(forEachMesh);
@@ -70,7 +74,7 @@ constexpr unsigned int cubeIndicies[] = {
 
 // clang-format on
 
-Entity MeshSystem::createCubeColored(EntityManager& manager, TransformComponent&& pos, glm::vec4&& color)
+Entity MeshSystem::createCubeColored(EntityManager& manager, Component::TransformComponent&& pos, glm::vec4&& color)
 {
     Entity entity{manager.createEntity()};
     // clang-format off
@@ -85,28 +89,29 @@ Entity MeshSystem::createCubeColored(EntityManager& manager, TransformComponent&
                                 -1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,
     };
     // clang-format on
-    MeshComponent mesh;
-    mesh.vertexBuffer = std::make_unique<VertexBuffer>(verArray, static_cast<unsigned int>(sizeof(verArray)));
+    Component::MeshComponent mesh;
+    mesh.vertexBuffer = std::make_unique<Graphics::VertexBuffer>(verArray, static_cast<unsigned int>(sizeof(verArray)));
 
-    mesh.vertexBufferLayout = std::make_unique<VertexBufferLayout>();
+    mesh.vertexBufferLayout = std::make_unique<Graphics::VertexBufferLayout>();
     mesh.vertexBufferLayout->push(GL_FLOAT, 3, false);
 
-    mesh.vertexArray = std::make_unique<VertexArray>();
+    mesh.vertexArray = std::make_unique<Graphics::VertexArray>();
     mesh.vertexArray->addBuffer(*mesh.vertexBuffer, *mesh.vertexBufferLayout);
 
-    mesh.indexBuffer = std::make_unique<IndexBuffer>(
+    mesh.indexBuffer = std::make_unique<Graphics::IndexBuffer>(
         cubeIndicies, static_cast<unsigned int>(sizeof(cubeIndicies) / sizeof(cubeIndicies[0])));
 
-    mesh.shader = std::make_unique<Shader>("shaders/Plane2DColored.vert", "shaders/Plane2DColored.frag");
+    mesh.shader = std::make_unique<Graphics::Shader>("shaders/Plane2DColored.vert", "shaders/Plane2DColored.frag");
 
-    manager.addComponent<MeshComponent>(entity, std::move(mesh));
-    manager.addComponent<TransformComponent>(entity, std::move(pos));
-    manager.addComponent<BoxCollision>(entity, {pos.scale.x, pos.scale.y, pos.scale.z});
-    manager.addComponent<ColorComponent>(entity, std::move(color));
+    manager.addComponent<Component::MeshComponent>(entity, std::move(mesh));
+    manager.addComponent<Component::TransformComponent>(entity, std::move(pos));
+    manager.addComponent<Component::BoxCollision>(entity, {pos.scale.x, pos.scale.y, pos.scale.z});
+    manager.addComponent<Component::ColorComponent>(entity, std::move(color));
     return entity;
 }
 
-Entity MeshSystem::createCubeTextured(EntityManager& manager, TransformComponent&& pos, std::string const& texture)
+Entity MeshSystem::createCubeTextured(EntityManager& manager, Component::TransformComponent&& pos,
+                                      std::string const& texture)
 {
     Entity entity{manager.createEntity()};
     // clang-format off
@@ -121,25 +126,25 @@ Entity MeshSystem::createCubeTextured(EntityManager& manager, TransformComponent
                                 -1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,   0.0,1.0,
     };
     // clang-format on
-    MeshComponent mesh;
-    mesh.vertexBuffer = std::make_unique<VertexBuffer>(verArray, static_cast<unsigned int>(sizeof(verArray)));
+    Component::MeshComponent mesh;
+    mesh.vertexBuffer = std::make_unique<Graphics::VertexBuffer>(verArray, static_cast<unsigned int>(sizeof(verArray)));
 
-    mesh.vertexBufferLayout = std::make_unique<VertexBufferLayout>();
+    mesh.vertexBufferLayout = std::make_unique<Graphics::VertexBufferLayout>();
     mesh.vertexBufferLayout->push(GL_FLOAT, 3, false);
     mesh.vertexBufferLayout->push(GL_FLOAT, 2, false);
 
-    mesh.vertexArray = std::make_unique<VertexArray>();
+    mesh.vertexArray = std::make_unique<Graphics::VertexArray>();
     mesh.vertexArray->addBuffer(*mesh.vertexBuffer, *mesh.vertexBufferLayout);
 
-    mesh.indexBuffer = std::make_unique<IndexBuffer>(
+    mesh.indexBuffer = std::make_unique<Graphics::IndexBuffer>(
         cubeIndicies, static_cast<unsigned int>(sizeof(cubeIndicies) / sizeof(cubeIndicies[0])));
 
-    mesh.shader = std::make_unique<Shader>("shaders/Plane2DTextured.vert", "shaders/Plane2DTextured.frag");
+    mesh.shader = std::make_unique<Graphics::Shader>("shaders/Plane2DTextured.vert", "shaders/Plane2DTextured.frag");
     mesh.shader->bind();
     mesh.shader->setUniform1i("texture1", 0);
-    manager.addComponent<TextureComponent>(entity, {texture});
+    manager.addComponent<Component::TextureComponent>(entity, {texture});
 
-    manager.addComponent<MeshComponent>(entity, std::move(mesh));
-    manager.addComponent<TransformComponent>(entity, std::move(pos));
+    manager.addComponent<Component::MeshComponent>(entity, std::move(mesh));
+    manager.addComponent<Component::TransformComponent>(entity, std::move(pos));
     return entity;
 }

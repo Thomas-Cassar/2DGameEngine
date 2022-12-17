@@ -1,16 +1,14 @@
 #include "systems/PlayerSystem.hpp"
-#include "components/BoxCollision.hpp"
-#include "components/CameraComponent.hpp"
-#include "components/InputComponent.hpp"
-#include "components/MovementComponent.hpp"
-#include "components/PlayerComponent.hpp"
-#include "components/TransformComponent.hpp"
+#include "glm//gtx/norm.hpp"
+#include "glm/glm.hpp"
 #include "systems/InputSystem.hpp"
+
+import Component;
 
 #include "glfw/glfw3.h"
 
-static void movePlayer(MovementComponent& move, CameraComponent const& cam, InputComponent const& input,
-                       BoxCollision const& box)
+static void movePlayer(Component::MovementComponent& move, Component::CameraComponent const& cam,
+                       Component::InputComponent const& input, Component::BoxCollision const& box)
 {
     glm::vec3 forwardVector{cam.cameraFront};
     forwardVector.y = 0.0F;
@@ -70,10 +68,12 @@ static void movePlayer(MovementComponent& move, CameraComponent const& cam, Inpu
 
 void PlayerSystem::update(EntityManager& manager, float deltaTime_s)
 {
-    ComponentsForEachFn<PlayerComponent, TransformComponent, MovementComponent, InputComponent, CameraComponent,
-                        BoxCollision> const forEachPlayer{
-        [&manager](Entity entity, PlayerComponent& player, TransformComponent& transform, MovementComponent& move,
-                   InputComponent& input, CameraComponent& cam, BoxCollision& box) {
+    ComponentsForEachFn<Component::PlayerComponent, Component::TransformComponent, Component::MovementComponent,
+                        Component::InputComponent, Component::CameraComponent, Component::BoxCollision> const
+        forEachPlayer{[&manager](Entity entity, Component::PlayerComponent& player,
+                                 Component::TransformComponent& transform, Component::MovementComponent& move,
+                                 Component::InputComponent& input, Component::CameraComponent& cam,
+                                 Component::BoxCollision& box) {
             movePlayer(move, cam, input, box);
             return true;
         }};

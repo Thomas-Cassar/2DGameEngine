@@ -1,10 +1,14 @@
-#pragma once
-#include "components/IComponent.hpp"
+module;
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
+export module Component:TransformComponent;
+import :IComponent;
 
-struct TransformComponent : public IComponent {
+namespace Component
+{
+
+export struct TransformComponent : public IComponent {
     glm::vec3 position = {};
     glm::quat rotation = glm::quat(glm::vec3{});
     glm::vec3 scale = {1.0f, 1.0f, 1.0f};
@@ -22,3 +26,4 @@ struct TransformComponent : public IComponent {
 
     TransformComponent() {}
 };
+} // namespace Component

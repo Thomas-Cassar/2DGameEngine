@@ -1,9 +1,12 @@
-#pragma once
-#include "graphics/Graphics.hpp"
+module;
+#include "graphics/Common.hpp"
 #include <vector>
+export module Graphics:VertexBufferLayout;
 
+namespace Graphics
+{
 /** Struct used to represent an element in a VertexBuffer*/
-struct VertexBufferElement {
+export struct VertexBufferElement {
     unsigned int type;
     unsigned int count;
     unsigned int normalized;
@@ -43,7 +46,7 @@ struct VertexBufferElement {
     }
 };
 
-class VertexBufferLayout {
+export class VertexBufferLayout {
 private:
     /** Vector of VertexBufferElements representing the order and layout of elements in the buffer */
     std::vector<VertexBufferElement> elements;
@@ -55,7 +58,7 @@ public:
      * @brief Construct a new Vertex Buffer Layout object
      *
      */
-    VertexBufferLayout();
+    VertexBufferLayout() : stride(0) {}
 
     /**
      * @brief Push an attribute into the layout
@@ -64,19 +67,27 @@ public:
      * @param count The number of that type in this attribute
      * @param normalize If the data type is normalized
      */
-    void push(unsigned int type, unsigned int count, bool normalize);
+    void push(unsigned int type, unsigned int count, bool normalize)
+    {
+        stride += VertexBufferElement::getSizeOfGLType(type) * count;
+        if (normalize)
+            elements.push_back({type, count, GL_TRUE});
+        else
+            elements.push_back({type, count, GL_FALSE});
+    }
 
     /**
      * @brief Get the Elements object
      *
      * @return const std::vector<VertexBufferElement>
      */
-    const std::vector<VertexBufferElement> getElements() const;
+    const std::vector<VertexBufferElement> getElements() const { return elements; }
 
     /**
      * @brief Get the Stride object
      *
      * @return unsigned int
      */
-    unsigned int getStride() const;
+    unsigned int getStride() const { return stride; }
 };
+} // namespace Graphics

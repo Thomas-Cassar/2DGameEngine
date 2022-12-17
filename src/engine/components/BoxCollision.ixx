@@ -1,8 +1,12 @@
-#pragma once
-#include "components/IComponent.hpp"
+module;
 #include "glm/glm.hpp"
+export module Component:BoxCollision;
 
-struct BoxCollision : public IComponent {
+import :IComponent;
+
+namespace Component
+{
+export struct BoxCollision : public IComponent {
 
     float width;             /// Local X axis
     float height;            /// Local Y axis
@@ -21,3 +25,4 @@ struct BoxCollision : public IComponent {
     {
     }
 };
+} // namespace Component
