@@ -1,11 +1,11 @@
 module;
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.hpp"
+#include <exception>
+#include <string>
 export module Graphics:Texture2D;
 
 import "graphics/Common.hpp";
-import <exception>;
-import <string>;
 
 using namespace std::string_literals;
 

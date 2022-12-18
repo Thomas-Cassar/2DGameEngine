@@ -4,10 +4,12 @@ module;
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
 export module System:MeshSystem;
-import <string>;
 import Graphics;
 import Ecs;
 import Component;
+// Using import here to prevent a compiler error
+import <memory>;
+import <string>;
 
 namespace System
 {
@@ -50,8 +52,8 @@ public:
         Ecs::ComponentsForEachFn<Component::MeshComponent, Component::TransformComponent> const forEachMesh{
             [&manager, &projectionViewMatrix](Ecs::Entity entity, Component::MeshComponent& component,
                                               Component::TransformComponent& transform) {
-                if (component.vertexBuffer == nullptr || component.vertexBufferLayout == nullptr ||
-                    component.vertexArray == nullptr || component.indexBuffer == nullptr || component.shader == nullptr)
+                if (!component.vertexBuffer || !component.vertexBufferLayout || !component.vertexArray ||
+                    !component.indexBuffer || !component.shader)
                 {
                     return true;
                 }

@@ -1,3 +1,5 @@
+module;
+#include <compare>
 export module Component;
 
 export import :BoxCollision;

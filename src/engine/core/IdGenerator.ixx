@@ -1,8 +1,9 @@
+module;
+#include <exception>
+#include <limits>
+#include <stdint.h>
+#include <string>
 export module Core:IdGenerator;
-import <exception>;
-import <limits>;
-import <stdint.h>;
-import <string>;
 
 namespace Core
 {

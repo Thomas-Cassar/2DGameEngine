@@ -1,10 +1,10 @@
 module;
 #include "glfw/glfw3.h"
 #include "glm/glm.hpp"
+#include <memory>
+#include <unordered_map>
 export module Component:InputComponent;
 
-import <memory>;
-import <unordered_map>;
 import Ecs;
 
 namespace Component

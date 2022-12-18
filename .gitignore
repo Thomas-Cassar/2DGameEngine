@@ -1,1 +1,4 @@
 build/
+.vs/
+*.pdb
+CMakeSettings.json

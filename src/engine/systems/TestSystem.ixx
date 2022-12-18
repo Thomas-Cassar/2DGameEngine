@@ -3,9 +3,9 @@ module;
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
 #include "imgui.h"
+#include <string>
 export module System:TestSystem;
 
-import <string>;
 import Component;
 import Ecs;
 

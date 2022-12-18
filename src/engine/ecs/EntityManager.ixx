@@ -1,12 +1,13 @@
+module;
+#include <concepts>
+#include <exception>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <tuple>
+#include <unordered_map>
+#include <vector>
 export module Ecs:EntityManager;
-import <concepts>;
-import <exception>;
-import <iostream>;
-import <memory>;
-import <sstream>;
-import <tuple>;
-import <unordered_map>;
-import <vector>;
 
 import Core;
 import :ComponentStore;

@@ -1,5 +1,6 @@
+module;
+#include <memory>
 export module Component:MeshComponent;
-import <memory>;
 import Ecs;
 import Graphics;
 

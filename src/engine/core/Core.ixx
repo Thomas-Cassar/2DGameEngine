@@ -1,6 +1,7 @@
+module;
+#include <concepts>
 export module Core;
 
-import <concepts>;
 export import :IdGenerator;
 
 export template <class T, class U>

@@ -1,10 +1,10 @@
 module;
 #include "imgui.h"
+#include <chrono>
+#include <iostream>
+#include <string>
 export module Ecs:SystemManager;
 
-import <chrono>;
-import <iostream>;
-import <string>;
 import :ISystem;
 import Core;
 

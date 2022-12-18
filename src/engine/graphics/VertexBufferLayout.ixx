@@ -1,9 +1,10 @@
+module;
+#include <exception>
+#include <string>
+#include <vector>
 export module Graphics:VertexBufferLayout;
 
 import "graphics/Common.hpp";
-import <exception>;
-import <string>;
-import <vector>;
 
 namespace Graphics
 {

@@ -1,9 +1,10 @@
+module;
+#include <memory>
+#include <string>
 export module Component:TextureComponent;
 
 import Ecs;
 import Graphics;
-import <memory>;
-import <string>;
 
 namespace Component
 {

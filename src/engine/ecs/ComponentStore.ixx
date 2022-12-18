@@ -1,9 +1,10 @@
+module;
+#include <exception>
+#include <functional>
+#include <unordered_map>
+#include <vector>
 export module Ecs:ComponentStore;
 
-import <exception>;
-import <functional>;
-import <unordered_map>;
-import <vector>;
 import :Entity;
 import :IComponentStore;
 import :IComponent;

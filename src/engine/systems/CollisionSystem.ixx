@@ -1,9 +1,9 @@
 module;
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
+#include <algorithm>
 export module System:CollisionSystem;
 
-import <algorithm>;
 import Ecs;
 import Component;
 
