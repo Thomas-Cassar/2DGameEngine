@@ -2,11 +2,11 @@ module;
 #include "glm/glm.hpp"
 export module Component:ColorComponent;
 
-import :IComponent;
+import Ecs;
 
 namespace Component
 {
-export struct ColorComponent : public IComponent {
+export struct ColorComponent : public Ecs::IComponent {
     glm::vec4 color = {1.0F, 1.0F, 1.0F, 1.0F};
 
     ColorComponent() {}

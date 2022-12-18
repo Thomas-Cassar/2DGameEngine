@@ -1,13 +1,13 @@
 export module Component:TextureComponent;
 
-import :IComponent;
+import Ecs;
 import Graphics;
 import <memory>;
 import <string>;
 
 namespace Component
 {
-export struct TextureComponent : public IComponent {
+export struct TextureComponent : public Ecs::IComponent {
     std::unique_ptr<Graphics::Texture2D> tex;
 
     TextureComponent(std::string const& texture) : tex(std::make_unique<Graphics::Texture2D>(texture)) {}

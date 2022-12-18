@@ -95,9 +95,8 @@ target_include_directories(imgui PUBLIC ${FETCHCONTENT_BASE_DIR}/imgui-src)
 target_link_libraries(imgui glfw)
 
 #Core Lib
-file(GLOB CORE_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/core/*.cpp)
-add_library(core ${CORE_SRCS})
-target_include_directories(core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/core/includes)
+file(GLOB CORE_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/core/*.ixx)
+add_library(core ${CORE_MODULES})
 target_link_libraries(core)
 
 #Graphics Lib
@@ -108,21 +107,18 @@ target_include_directories(graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engin
 target_link_libraries(graphics core libglew_static stb glm glfw)
 
 #entity_component_system Lib
-file(GLOB ECS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/ecs/*.cpp)
-add_library(ecs ${ECS_SRCS})
-target_include_directories(ecs PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/ecs/includes)
+file(GLOB ECS_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/ecs/*.ixx)
+add_library(ecs ${ECS_MODULES})
 target_link_libraries(ecs core imgui)
 
 #Components Lib
 file(GLOB COMPONENTS_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/components/*.ixx)
 add_library(components ${COMPONENTS_MODULES})
-target_include_directories(components PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/components/includes)
 target_link_libraries(components core glm ecs graphics glfw)
 
 #Systems Lib
-file(GLOB SYSTEMS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/systems/*.cpp)
-add_library(systems ${SYSTEMS_SRCS})
-target_include_directories(systems PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/systems/includes)
+file(GLOB SYSTEMS_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/systems/*.ixx)
+add_library(systems ${SYSTEMS_MODULES})
 target_link_libraries(systems core glm components ecs imgui)
 
 #Link libs to main executable

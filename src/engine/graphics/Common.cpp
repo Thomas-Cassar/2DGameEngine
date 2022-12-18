@@ -1,4 +1,5 @@
 #include "graphics/Common.hpp"
+#include <iostream>
 
 namespace Graphics
 {

@@ -1,16 +1,21 @@
-#pragma once
-#include "ecs/Entity.hpp"
-#include "ecs/IComponentStore.hpp"
-#include <exception>
-#include <functional>
-#include <unordered_map>
-#include <vector>
+export module Ecs:ComponentStore;
 
-template <typename T>
+import <exception>;
+import <functional>;
+import <unordered_map>;
+import <vector>;
+import :Entity;
+import :IComponentStore;
+import :IComponent;
+import Core;
+
+namespace Ecs
+{
+export template <Derived<IComponent> T>
 using ComponentForEachFn = std::function<bool(Entity, T&)>;
 
-template <typename T>
-class ComponentStore : public IComponentStore {
+export template <Derived<IComponent> T>
+class ComponentStore : public Ecs::IComponentStore {
 public:
     void addComponent(Entity entity, T&& component)
     {
@@ -91,3 +96,4 @@ private:
     std::vector<Entity> componentToEntity;
     std::unordered_map<Entity, size_t> entityToComponent;
 };
+} // namespace Ecs

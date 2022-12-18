@@ -1,5 +1,3 @@
-module;
-#include "graphics/Common.hpp"
 export module Graphics;
 
 export import :IndexBuffer;
@@ -8,6 +6,7 @@ export import :VertexBufferLayout;
 export import :VertexArray;
 export import :VertexBuffer;
 export import :Texture2D;
+import "graphics/Common.hpp";
 
 namespace Graphics
 {

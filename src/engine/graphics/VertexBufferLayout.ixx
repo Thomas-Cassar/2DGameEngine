@@ -1,7 +1,9 @@
-module;
-#include "graphics/Common.hpp"
-#include <vector>
 export module Graphics:VertexBufferLayout;
+
+import "graphics/Common.hpp";
+import <exception>;
+import <string>;
+import <vector>;
 
 namespace Graphics
 {
@@ -40,7 +42,7 @@ export struct VertexBufferElement {
             return 8;
 
         default:
-            engineAssert(false);
+            throw std::exception("Tried to get size of uknown GLType");
             return 0;
         }
     }

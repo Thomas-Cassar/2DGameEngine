@@ -2,11 +2,11 @@ module;
 #include "glm/glm.hpp"
 export module Component:MovementComponent;
 
-import :IComponent;
+import Ecs;
 
 namespace Component
 {
-export struct MovementComponent : public IComponent {
+export struct MovementComponent : public Ecs::IComponent {
     glm::vec3 velocity = {};
     float terminalVelocityVertical = INFINITY;
     float terminalVelocityHorizontal = INFINITY;

@@ -2,11 +2,11 @@ module;
 #include "glm/glm.hpp"
 export module Component:BoxCollision;
 
-import :IComponent;
+import Ecs;
 
 namespace Component
 {
-export struct BoxCollision : public IComponent {
+export struct BoxCollision : public Ecs::IComponent {
 
     float width;             /// Local X axis
     float height;            /// Local Y axis

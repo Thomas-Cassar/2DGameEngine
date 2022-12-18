@@ -1,7 +1,6 @@
 #pragma once
 #include "GL/glew.h"
-#include "core/core.hpp"
-#include <iostream>
+#include <cstdlib>
 
 namespace Graphics
 {
@@ -16,6 +15,7 @@ bool glLogErrors(const char* function, const char* file, int line);
 #define glCheck(x)                                                                                                     \
     glClearErrors();                                                                                                   \
     x;                                                                                                                 \
-    engineAssert(glLogErrors(#x, __FILE__, __LINE__))
+    if (!glLogErrors(#x, __FILE__, __LINE__))                                                                          \
+        exit(1);
 
 } // namespace Graphics

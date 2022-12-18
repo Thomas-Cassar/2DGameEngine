@@ -2,12 +2,12 @@ module;
 #include "glm/glm.hpp"
 export module Component:CameraComponent;
 
-import :IComponent;
+import Ecs;
 
 namespace Component
 {
 
-export struct CameraComponent : public IComponent {
+export struct CameraComponent : public Ecs::IComponent {
     /// Point that camera is looking at (normalized)
     glm::vec3 cameraFront;
     /// Vector that points to up direction

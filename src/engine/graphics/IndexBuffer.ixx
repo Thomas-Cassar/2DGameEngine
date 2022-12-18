@@ -1,6 +1,6 @@
-module;
-#include "graphics/Common.hpp"
 export module Graphics:IndexBuffer;
+
+import "graphics/Common.hpp";
 
 namespace Graphics
 {

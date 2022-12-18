@@ -1,36 +1,44 @@
-#pragma once
-#include "core/IdGenerator.hpp"
-#include "ecs/ComponentStore.hpp"
-#include "ecs/Entity.hpp"
-#include <exception>
-#include <iostream>
-#include <memory>
-#include <sstream>
-#include <tuple>
-#include <unordered_map>
-#include <vector>
+export module Ecs:EntityManager;
+import <concepts>;
+import <exception>;
+import <iostream>;
+import <memory>;
+import <sstream>;
+import <tuple>;
+import <unordered_map>;
+import <vector>;
 
-#define RESERVED_COMPONENT_STORES 128
+import Core;
+import :ComponentStore;
+import :Entity;
+import :IComponent;
 
-template <typename T, typename... Args>
+namespace Ecs
+{
+constexpr size_t kReservedComponentStores = 128;
+
+export template <Derived<IComponent> T, Derived<IComponent>... Args>
 using ComponentsForEachFn = std::function<bool(Entity, T&, Args&...)>;
 
-struct IComponent;
-
-class EntityManager {
+export class EntityManager {
 public:
-    EntityManager() noexcept;
+    EntityManager() noexcept { componentStores.reserve(kReservedComponentStores); }
 
-    Entity createEntity();
+    Entity createEntity() { return entityIdGenerator.getNewId(); }
 
-    void destroyEntity(Entity entity);
+    void destroyEntity(Entity entity)
+    {
+        for (auto& componentStore : componentStores)
+        {
+            componentStore->destroyComponent(entity);
+        }
+    }
 
-    template <typename T>
+    template <Derived<IComponent> T>
     void registerComponent()
     {
-        static_assert(std::is_base_of<IComponent, T>::value, "Components must be derived from IComponent");
-        auto const& componentStore{getComponentStore<T>()};
-        if (componentStore != nullptr)
+        std::shared_ptr<ComponentStore<T>> componentStore{getComponentStore<T>()};
+        if (componentStore)
         {
             std::cerr << "Component already registered" << std::endl;
             return;
@@ -41,33 +49,33 @@ public:
         typeToComponentStore.emplace(getComponentIdx<T>(), newComponentStore);
     }
 
-    template <typename T>
+    template <Derived<IComponent> T>
     void addComponent(Entity entity, T&& component)
     {
         std::shared_ptr<ComponentStore<T>> componentStore{getComponentStore<T>()};
-        if (componentStore == nullptr)
+        if (!componentStore)
         {
             throw std::exception("Tried to add a component without registering!");
         }
         componentStore->addComponent(entity, std::move(component));
     }
 
-    template <typename T>
+    template <Derived<IComponent> T>
     void addComponent(Entity entity, T const& component)
     {
         std::shared_ptr<ComponentStore<T>> componentStore{getComponentStore<T>()};
-        if (componentStore == nullptr)
+        if (!componentStore)
         {
             throw std::exception("Tried to add a component without registering!");
         }
         componentStore->addComponent(entity, component);
     }
 
-    template <typename T, typename... Args>
+    template <Derived<IComponent> T, Derived<IComponent>... Args>
     bool forEachComponents(ComponentsForEachFn<T, Args...> const& forEachFn)
     {
         std::shared_ptr<ComponentStore<T>> componentStore{getComponentStore<T>()};
-        if (componentStore == nullptr)
+        if (!componentStore)
         {
             throw std::exception("Could not find component to do for each!");
         }
@@ -89,28 +97,28 @@ public:
         return componentStore->forEach(checkedForEachFn);
     }
 
-    template <typename... Args, typename = std::enable_if<(sizeof...(Args) == 0), size_t>::type>
+    template <Derived<IComponent>... Args, typename = std::enable_if<(sizeof...(Args) == 0), size_t>::type>
     bool hasComponents(Entity entity)
     {
         return true;
     }
 
-    template <typename T, typename... Args>
+    template <Derived<IComponent> T, Derived<IComponent>... Args>
     bool hasComponents(Entity entity)
     {
         std::shared_ptr<ComponentStore<T>> componentStore{getComponentStore<T>()};
-        if (componentStore == nullptr)
+        if (!componentStore)
         {
             return false;
         }
         return componentStore->hasComponent(entity) && hasComponents<Args...>(entity);
     }
 
-    template <typename T>
+    template <Derived<IComponent> T>
     T& getComponent(Entity entity)
     {
         std::shared_ptr<ComponentStore<T>> componentStore{getComponentStore<T>()};
-        if (componentStore == nullptr)
+        if (!componentStore)
         {
             std::stringstream message;
             message << "Could not retrieve component " << typeid(T).name() << " for entity with ID " << entity;
@@ -122,13 +130,12 @@ public:
 private:
     std::vector<std::shared_ptr<IComponentStore>> componentStores;
     std::unordered_map<size_t, std::shared_ptr<IComponentStore>> typeToComponentStore;
-    IdGenerator entityIdGenerator;
-    IdGenerator componentIdGenerator;
+    Core::IdGenerator entityIdGenerator;
+    Core::IdGenerator componentIdGenerator;
 
-    template <typename T>
+    template <Derived<IComponent> T>
     size_t getComponentIdx()
     {
-        static_assert(std::is_base_of<IComponent, T>::value, "Components must be derived from IComponent");
         static size_t idx = 0;
         static bool idGenerated = false;
 
@@ -141,7 +148,7 @@ private:
         return idx;
     }
 
-    template <typename T>
+    template <Derived<IComponent> T>
     std::shared_ptr<ComponentStore<T>> getComponentStore()
     {
         size_t const hash{getComponentIdx<T>()};
@@ -151,11 +158,11 @@ private:
                    : nullptr;
     }
 
-    template <typename T>
+    template <Derived<IComponent> T>
     T* getComponentPtr(Entity entity)
     {
         std::shared_ptr<ComponentStore<T>> componentStore{getComponentStore<T>()};
-        if (componentStore == nullptr)
+        if (!componentStore)
         {
             std::stringstream message;
             message << "Could not retrieve component " << typeid(T).name() << " for entity with ID " << entity;
@@ -171,7 +178,7 @@ private:
         {
             return false;
         }
-        else if (std::get<I>(tup) == nullptr)
+        else if (!std::get<I>(tup))
         {
             return true;
         }
@@ -181,3 +188,4 @@ private:
         }
     }
 };
+} // namespace Ecs

@@ -9,11 +9,8 @@
 #include <queue>
 
 import Component;
-
-#include "ecs/EntityManager.hpp"
-#include "ecs/SystemManager.hpp"
-#include "systems/Common.hpp"
-#include "systems/MeshSystem.hpp"
+import Ecs;
+import System;
 
 #ifdef _WIN32
 extern "C" { // Use High Performance GPU
@@ -83,12 +80,12 @@ int main()
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init(glslVersion);
 
-        std::shared_ptr<EntityManager> manager{std::make_shared<EntityManager>()};
-        SystemManager sysManager(manager);
+        std::shared_ptr<Ecs::EntityManager> manager{std::make_shared<Ecs::EntityManager>()};
+        Ecs::SystemManager sysManager(manager);
         Component::registerComponents(*manager);
-        registerSystems(sysManager);
+        System::registerSystems(sysManager);
 
-        Entity player{manager->createEntity()};
+        Ecs::Entity player{manager->createEntity()};
         manager->addComponent<Component::CameraComponent>(player, {{}});
         manager->addComponent<Component::TransformComponent>(player, {{0.0f, 4.0f, 0.0f}});
         manager->addComponent<Component::InputComponent>(player, {window});
@@ -96,12 +93,12 @@ int main()
         manager->addComponent<Component::PlayerComponent>(player, {});
         manager->addComponent<Component::BoxCollision>(player, {1.0f, 2.0f, 1.0f});
 
-        Entity coloredCube1{MeshSystem::createCubeColored(*manager, {{0.0F, 0.0F, 0.0F}, {}, {5.0F, 1.0F, 5.0F}},
-                                                          {1.0F, 1.0F, 1.0F, 1.0F})};
+        Ecs::Entity coloredCube1{System::MeshSystem::createCubeColored(
+            *manager, {{0.0F, 0.0F, 0.0F}, {}, {5.0F, 1.0F, 5.0F}}, {1.0F, 1.0F, 1.0F, 1.0F})};
         constexpr int numCubes{100};
         for (int i{}; i < numCubes; i++)
         {
-            MeshSystem::createCubeColored(
+            System::MeshSystem::createCubeColored(
                 *manager,
                 {{static_cast<float>(rand()) / RAND_MAX * 100.0f, static_cast<float>(rand()) / RAND_MAX * 2.0f - 2.0f,
                   static_cast<float>(rand()) / RAND_MAX * 100.0f}},

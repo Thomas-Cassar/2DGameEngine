@@ -1,13 +1,12 @@
-module;
-#include <memory>
 export module Component:MeshComponent;
-import :IComponent;
+import <memory>;
+import Ecs;
 import Graphics;
 
 namespace Component
 {
 
-export struct MeshComponent : public IComponent {
+export struct MeshComponent : public Ecs::IComponent {
     std::unique_ptr<Graphics::VertexBuffer> vertexBuffer;
     std::unique_ptr<Graphics::VertexBufferLayout> vertexBufferLayout;
     std::unique_ptr<Graphics::VertexArray> vertexArray;

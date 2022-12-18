@@ -3,12 +3,12 @@ module;
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
 export module Component:TransformComponent;
-import :IComponent;
+import Ecs;
 
 namespace Component
 {
 
-export struct TransformComponent : public IComponent {
+export struct TransformComponent : public Ecs::IComponent {
     glm::vec3 position = {};
     glm::quat rotation = glm::quat(glm::vec3{});
     glm::vec3 scale = {1.0f, 1.0f, 1.0f};

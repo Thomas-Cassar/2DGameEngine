@@ -1,8 +1,13 @@
 module;
-#include "graphics/Common.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.hpp"
 export module Graphics:Texture2D;
+
+import "graphics/Common.hpp";
+import <exception>;
+import <string>;
+
+using namespace std::string_literals;
 
 namespace Graphics
 {
@@ -30,8 +35,7 @@ public:
         unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &numChannels, 0);
         if (data == nullptr)
         {
-            std::cerr << "Failed to load texture " << filePath << std::endl;
-            engineAssert(false);
+            throw std::exception(("Failed to load texture "s + filePath).c_str());
         }
         // Create texture
         glCheck(glGenTextures(1, &texture2DID));

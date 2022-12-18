@@ -1,9 +1,9 @@
 export module Component:PlayerComponent;
-import :IComponent;
+import Ecs;
 
 namespace Component
 {
-export struct PlayerComponent : public IComponent {
+export struct PlayerComponent : public Ecs::IComponent {
 
     PlayerComponent() {}
 };

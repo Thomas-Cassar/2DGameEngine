@@ -1,10 +1,15 @@
 module;
 #include "glm/glm.hpp"
-#include "graphics/Common.hpp"
+// Must use headers does not compile with STL modules
+#include <exception>
 #include <fstream>
-#include <string>
+#include <iostream>
 #include <unordered_map>
 export module Graphics:Shader;
+
+import "graphics/Common.hpp";
+
+using namespace std::string_literals;
 
 namespace Graphics
 {
@@ -55,8 +60,7 @@ private:
         std::ifstream file(filePath);
         if (file.fail())
         {
-            std::cerr << "Could not find shader file \"" << filePath << "\"" << std::endl;
-            engineAssert(false);
+            throw std::exception(("Could not find shader file \""s + filePath + "\""s).c_str());
         }
         // Get filesize and create string of that size
         file.seekg(0, std::ios::end);
@@ -84,7 +88,7 @@ private:
             std::cout << "Failed to compile " << (type == GL_VERTEX_SHADER ? "Vertex" : "fragment") << std::endl;
             std::cout << compileMessage << std::endl;
             glDeleteShader(shadID);
-            engineAssert(false);
+            throw std::exception();
         }
 
         file.close();
@@ -137,8 +141,7 @@ public:
 
         if (location == -1)
         {
-            std::cerr << "Uniform " << name << " does not exist" << std::endl;
-            engineAssert(false);
+            throw std::exception(("Uniform "s + name + " does not exist"s).c_str());
         }
 
         // Cache location

@@ -1,8 +1,7 @@
-module;
-#include "graphics/Common.hpp"
-#include <vector>
 export module Graphics:VertexArray;
 
+import "graphics/Common.hpp";
+import <vector>;
 export import :VertexBufferLayout;
 export import :VertexBuffer;
 
