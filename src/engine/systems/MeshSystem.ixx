@@ -73,12 +73,14 @@ public:
         // Get projection*view matrix from the first camera available
         glm::mat4 projection;
         glm::mat4 view;
+        glm::vec3 camPos;
         Ecs::ComponentsForEachFn<Component::CameraComponent, Component::TransformComponent> const forEachCamera{
-            [&projection,&view](Ecs::Entity entity, Component::CameraComponent& cam,
+            [&projection,&view,&camPos](Ecs::Entity entity, Component::CameraComponent& cam,
                                     Component::TransformComponent& transform) {
                 projection = cam.proj;
                 view = glm::lookAt(transform.position + cam.offset, cam.cameraFront + transform.position + cam.offset,
                                    cam.cameraUp);
+                camPos = transform.position;
                 return false;
             }};
         manager.forEachComponents(forEachCamera);
@@ -91,26 +93,27 @@ public:
             }};
         manager.forEachComponents(forEachAmbientLight);
 
-        // For now only support one diffuse light
-        glm::vec3 difLightPos{};
-        glm::vec3 difLightColor{1.0f, 1.0f, 1.0f};
-        Ecs::ComponentsForEachFn<Component::DiffuseLightComponent, Component::TransformComponent> const
-            forEachDirectionalLight{[&difLightPos, &difLightColor](Ecs::Entity entity,
-                                                                   Component::DiffuseLightComponent& light,
+        // For now only support one point light
+        glm::vec3 pointLightPos{};
+        glm::vec3 pointLightColor{1.0f, 1.0f, 1.0f};
+        float pointLightSpecularStength{};
+        Ecs::ComponentsForEachFn<Component::PointLightComponent, Component::TransformComponent> const forEachPointLight{
+            [&pointLightPos, &pointLightColor, &pointLightSpecularStength](
+                Ecs::Entity entity,
+                                                                   Component::PointLightComponent& light,
                                                                    Component::TransformComponent& transform) {
-                difLightColor = light.strength * light.color;
-                if (difLightColor != glm::vec3{})
-                {
-                    difLightColor = glm::normalize(difLightColor);
-                }
-                difLightPos = transform.position;
+                pointLightColor = light.diffuseStrength * light.color;
+                pointLightPos = transform.position;
+                pointLightSpecularStength = light.specularStength;
+
                 return false;
             }};
-        manager.forEachComponents(forEachDirectionalLight);
+        manager.forEachComponents(forEachPointLight);
 
         // Render every mesh
         Ecs::ComponentsForEachFn<Component::MeshComponent, Component::TransformComponent> const forEachMesh{
-            [&manager, &view, &projection, &ambientLightColor, &difLightPos, &difLightColor](
+            [&manager, &view, &projection, &ambientLightColor, &pointLightPos, &pointLightColor, &camPos,
+             &pointLightSpecularStength](
                 Ecs::Entity entity, Component::MeshComponent& component, Component::TransformComponent& transform) {
                 if (!component.vertexBuffer || !component.vertexBufferLayout || !component.vertexArray ||
                     !component.indexBuffer || !component.shader)
@@ -132,12 +135,15 @@ public:
                 model = glm::scale(model, transform.scale);
 
                 component.shader->SetUniformMat4f("u_model", model);
+                component.shader->SetUniformMat3f("u_normalMat", glm::transpose(glm::inverse(model)));
                 component.shader->SetUniformMat4f("u_view", view);
                 component.shader->SetUniformMat4f("u_projection", projection);
                 component.shader->setUniform3f("u_ambientLightColor", ambientLightColor.x, ambientLightColor.y,
                                                ambientLightColor.z);
-                component.shader->setUniform3f("u_difLightPos", difLightPos.x, difLightPos.y, difLightPos.z);
-                component.shader->setUniform3f("u_difLightColor", difLightColor.x, difLightColor.y, difLightColor.z);
+                component.shader->setUniform3f("u_pointLightPos", pointLightPos.x, pointLightPos.y, pointLightPos.z);
+                component.shader->setUniform3f("u_pointLightColor", pointLightColor.x, pointLightColor.y, pointLightColor.z);
+                component.shader->setUniform3f("u_viewPos", camPos.x, camPos.y, camPos.z);
+                component.shader->setUniform1f("u_specularStrength", pointLightSpecularStength);
 
                 component.vertexArray->bind();
                 component.indexBuffer->bind();

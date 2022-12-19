@@ -98,7 +98,7 @@ int main()
         manager->addComponent<Component::AmbientLightComponent>(ambientLight, {});
         Ecs::Entity diffuseLight{manager->createEntity()};
         System::MeshSystem::addCubeMeshComponent(*manager, diffuseLight, {{0.0, 10.0f, 0.0f}}, {1.0f,0.7f,0.0f});
-        manager->addComponent<Component::DiffuseLightComponent>(diffuseLight, {});
+        manager->addComponent<Component::PointLightComponent>(diffuseLight, {});
 
         Ecs::Entity coloredCube1{manager->createEntity()};
         System::MeshSystem::addCubeMeshComponent(*manager, coloredCube1, {{0.0F, 0.0F, 0.0F}, {}, {5.0F, 1.0F, 5.0F}},

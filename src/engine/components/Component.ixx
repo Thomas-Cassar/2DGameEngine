@@ -12,7 +12,7 @@ export import :PlayerComponent;
 export import :TextureComponent;
 export import :TransformComponent;
 export import :AmbientLightComponent;
-export import :DiffuseLightComponent;
+export import :PointLightComponent;
 import Ecs;
 
 namespace Component
@@ -29,6 +29,6 @@ export void registerComponents(Ecs::EntityManager& manager)
     manager.registerComponent<ColorComponent>();
     manager.registerComponent<PlayerComponent>();
     manager.registerComponent<AmbientLightComponent>();
-    manager.registerComponent<DiffuseLightComponent>();
+    manager.registerComponent<PointLightComponent>();
 }
 } // namespace Component

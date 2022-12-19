@@ -208,6 +208,17 @@ public:
     }
 
     /**
+     * @brief Set the Uniform Mat 3f
+     *
+     * @param name Uniform name
+     * @param matrix Matrix to set uniform to
+     */
+    void SetUniformMat3f(const std::string& name, const glm::mat3& matrix)
+    {
+        glCheck(glUniformMatrix3fv(getUniformLocation(name), 1, GL_FALSE, &matrix[0][0]));
+    }
+
+    /**
      * @brief Set the Uniform Mat 4f
      *
      * @param name Uniform name
