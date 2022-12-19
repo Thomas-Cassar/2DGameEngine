@@ -19,10 +19,10 @@ public:
         Ecs::ComponentsForEachFn<Component::PlayerComponent, Component::TransformComponent,
                                  Component::MovementComponent, Component::InputComponent, Component::CameraComponent,
                                  Component::BoxCollision> const forEachPlayer{
-            [&manager](Ecs::Entity entity, Component::PlayerComponent& player, Component::TransformComponent& transform,
+            [](Ecs::Entity entity, Component::PlayerComponent& player, Component::TransformComponent& transform,
                        Component::MovementComponent& move, Component::InputComponent& input,
                        Component::CameraComponent& cam, Component::BoxCollision& box) {
-                movePlayer(move, cam, input, box);
+                movePlayer(move, cam, input, box, player);
                 return true;
             }};
 
@@ -31,13 +31,39 @@ public:
 
 private:
     static void movePlayer(Component::MovementComponent& move, Component::CameraComponent const& cam,
-                           Component::InputComponent const& input, Component::BoxCollision const& box)
+                           Component::InputComponent const& input, Component::BoxCollision const& box,Component::PlayerComponent& player)
     {
+        // DEBUG CONTROLS
+        if (InputSystem::isKeyPressedTransition(input, GLFW_KEY_R))
+        {
+            // Toggle to debug mode
+            if (!player.debugControls)
+            {
+                move.doesGravity = false;
+                move.velocity = {};
+                move.acceleration = {};
+                move.terminalVelocityAffectsVertical = true;
+                player.debugControls = true;
+            }
+            else
+            {
+                move.doesGravity = true;
+                move.terminalVelocityAffectsVertical = false;
+                player.debugControls = false;
+            }
+        }
+
         glm::vec3 forwardVector{cam.cameraFront};
         forwardVector.y = 0.0F;
         forwardVector = glm::normalize(forwardVector);
         glm::vec3 rightVector{glm::normalize(glm::cross(forwardVector, cam.cameraUp))};
         glm::vec3 moveAcceleration{};
+
+        // If we are using debug controls allow moving on y axis
+        if (player.debugControls)
+        {
+            forwardVector=cam.cameraFront;
+        }
 
         if (InputSystem::isKeyPressedDown(input, GLFW_KEY_W))
         {
@@ -68,20 +94,22 @@ private:
         // When not moving accelerate in direction opposite of velocity to slow down
         else
         {
-            glm::vec3 horizontalVelocity{move.velocity.x, 0.0f, move.velocity.z};
-            if (glm::length2(horizontalVelocity) > epsilon)
+            //If using debug controls also slow down on y axis
+            glm::vec3 velocity=player.debugControls ? move.velocity : glm::vec3{move.velocity.x, 0.0f, move.velocity.z};
+            if (glm::length2(velocity) > epsilon)
             {
-                moveAcceleration = glm::normalize(horizontalVelocity) * decelerationMag;
+                moveAcceleration = glm::normalize(velocity) * decelerationMag;
             }
             else
             {
                 move.velocity.x = 0.0f;
+                move.velocity.y = player.debugControls ? 0.0f : move.velocity.y;
                 move.velocity.z = 0.0f;
             }
         }
 
         // Jump handling
-        if (box.colliding && box.collisionAxis.y && InputSystem::isKeyPressedDown(input, GLFW_KEY_SPACE))
+        if (box.colliding && box.collisionAxis.y && InputSystem::isKeyPressedTransition(input, GLFW_KEY_SPACE))
         {
             move.velocity.y += jumpVelocity;
         }

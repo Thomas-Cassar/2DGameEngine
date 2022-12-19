@@ -1,4 +1,5 @@
 #include "gl/glew.h"
+#include "glm/glm.hpp"
 
 #include "GLFW/glfw3.h"
 #include "backends/imgui_impl_glfw.h"
@@ -93,16 +94,24 @@ int main()
         manager->addComponent<Component::PlayerComponent>(player, {});
         manager->addComponent<Component::BoxCollision>(player, {1.0f, 2.0f, 1.0f});
 
-        Ecs::Entity coloredCube1{System::MeshSystem::createCubeColored(
-            *manager, {{0.0F, 0.0F, 0.0F}, {}, {5.0F, 1.0F, 5.0F}}, {1.0F, 1.0F, 1.0F, 1.0F})};
+        Ecs::Entity ambientLight{manager->createEntity()};
+        manager->addComponent<Component::AmbientLightComponent>(ambientLight, {});
+        Ecs::Entity diffuseLight{manager->createEntity()};
+        System::MeshSystem::addCubeMeshComponent(*manager, diffuseLight, {{0.0, 10.0f, 0.0f}}, {1.0f,0.7f,0.0f});
+        manager->addComponent<Component::DiffuseLightComponent>(diffuseLight, {});
+
+        Ecs::Entity coloredCube1{manager->createEntity()};
+        System::MeshSystem::addCubeMeshComponent(*manager, coloredCube1, {{0.0F, 0.0F, 0.0F}, {}, {5.0F, 1.0F, 5.0F}},
+                                                 {1.0F, 1.0F, 1.0F});
         constexpr int numCubes{100};
         for (int i{}; i < numCubes; i++)
         {
-            System::MeshSystem::createCubeColored(
-                *manager,
+            Ecs::Entity cube{manager->createEntity()};
+            System::MeshSystem::addCubeMeshComponent(*manager,
+                                                  cube,
                 {{static_cast<float>(rand()) / RAND_MAX * 100.0f, static_cast<float>(rand()) / RAND_MAX * 2.0f - 2.0f,
                   static_cast<float>(rand()) / RAND_MAX * 100.0f}},
-                {1.0f, 0.0f, 0.0f, 0.0f});
+                {1.0f, 0.0f, 0.0f});
         }
 
         std::chrono::time_point lastTime{std::chrono::steady_clock::now()};

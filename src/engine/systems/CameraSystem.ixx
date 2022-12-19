@@ -22,7 +22,7 @@ public:
     {
         Ecs::ComponentsForEachFn<Component::CameraComponent, Component::TransformComponent,
                                  Component::InputComponent> const forEachCamera{
-            [&manager, &deltaTime_s](Ecs::Entity entity, Component::CameraComponent& camera,
+            [&deltaTime_s](Ecs::Entity entity, Component::CameraComponent& camera,
                                      Component::TransformComponent& transform, Component::InputComponent& input) {
                 int width, height;
                 glfwGetWindowSize(input.windowPtr, &width, &height);
@@ -32,31 +32,9 @@ public:
                 {
                     turnCameraFromInput(camera, transform, input.deltaMousePos);
                 }
-
-                // Debug keys to move in direction camera points
-                if (InputSystem::isKeyPressedDown(input, GLFW_KEY_UP))
-                    moveForward(camera, transform, 10.0f * deltaTime_s);
-                if (InputSystem::isKeyPressedDown(input, GLFW_KEY_DOWN))
-                    moveForward(camera, transform, -10.0f * deltaTime_s);
-                if (InputSystem::isKeyPressedDown(input, GLFW_KEY_RIGHT))
-                    moveRight(camera, transform, 10.0f * deltaTime_s);
-                if (InputSystem::isKeyPressedDown(input, GLFW_KEY_LEFT))
-                    moveRight(camera, transform, -10.0f * deltaTime_s);
                 return true;
             }};
         manager.forEachComponents(forEachCamera);
-    }
-
-    static void moveForward(Component::CameraComponent const& camera, Component::TransformComponent& transform,
-                            float distance)
-    {
-        transform.position += distance * camera.cameraFront;
-    }
-
-    static void moveRight(Component::CameraComponent const& camera, Component::TransformComponent& transform,
-                          float distance)
-    {
-        transform.position += distance * glm::normalize(glm::cross(camera.cameraFront, camera.cameraUp));
     }
 
     static void turnCameraFromInput(Component::CameraComponent& camera, Component::TransformComponent& transform,

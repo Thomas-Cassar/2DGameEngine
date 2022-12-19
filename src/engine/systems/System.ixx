@@ -16,10 +16,11 @@ export void registerSystems(Ecs::SystemManager& manager)
 {
     // Order of registration is order of update call
     manager.registerSystem<InputSystem>();
-    manager.registerSystem<CameraSystem>();
     manager.registerSystem<PlayerSystem>();
+    manager.registerSystem<CameraSystem>();
     manager.registerSystem<MovementSystem>();
     manager.registerSystem<CollisionSystem>();
     manager.registerSystem<MeshSystem>();
+    manager.registerSystem<TestSystem>();
 }
 } // namespace System

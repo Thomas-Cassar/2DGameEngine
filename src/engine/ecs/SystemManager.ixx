@@ -2,6 +2,8 @@ module;
 #include "imgui.h"
 #include <chrono>
 #include <iostream>
+#include <unordered_map>
+#include <memory>
 #include <string>
 export module Ecs:SystemManager;
 

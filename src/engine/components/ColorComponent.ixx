@@ -7,10 +7,10 @@ import Ecs;
 namespace Component
 {
 export struct ColorComponent : public Ecs::IComponent {
-    glm::vec4 color = {1.0F, 1.0F, 1.0F, 1.0F};
+    glm::vec3 color = {1.0F, 1.0F, 1.0F};
 
     ColorComponent() {}
 
-    ColorComponent(glm::vec4 color) : color(color) {}
+    ColorComponent(glm::vec3 color) : color(color) {}
 };
 } // namespace Component

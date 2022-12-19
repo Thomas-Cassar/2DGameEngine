@@ -8,8 +8,8 @@ namespace Component
 {
 export struct MovementComponent : public Ecs::IComponent {
     glm::vec3 velocity = {};
-    float terminalVelocityVertical = INFINITY;
-    float terminalVelocityHorizontal = INFINITY;
+    float terminalVelocity = INFINITY;
+    bool terminalVelocityAffectsVertical = false;
     glm::vec3 acceleration = {};
     glm::vec3 angularVelocity = {};
     glm::vec3 angularAcceleration = {};
@@ -20,8 +20,8 @@ export struct MovementComponent : public Ecs::IComponent {
 
     MovementComponent(bool doesGravity, bool canMove) : doesGravity(doesGravity), canMove(canMove) {}
 
-    MovementComponent(bool doesGravity, bool canMove, float terminalVelocityHorizontal)
-        : doesGravity(doesGravity), canMove(canMove), terminalVelocityHorizontal(terminalVelocityHorizontal)
+    MovementComponent(bool doesGravity, bool canMove, float terminalVelocity)
+        : doesGravity(doesGravity), canMove(canMove), terminalVelocity(terminalVelocity)
     {
     }
 };

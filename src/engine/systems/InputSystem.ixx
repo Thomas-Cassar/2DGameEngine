@@ -14,11 +14,12 @@ export class InputSystem : public Ecs::ISystem {
 public:
     void update(Ecs::EntityManager& manager, float deltaTime_s) override
     {
-        // Clear previous callbacks
-        glfwPollEvents();
-
         Ecs::ComponentsForEachFn<Component::InputComponent> const forEachInput{
             [](Ecs::Entity entity, Component::InputComponent& input) {
+                // Clear previous callbacks
+                input.keyStates->clear();
+
+                glfwPollEvents();
                 input.prevMousePos = input.mousePos;
                 glfwGetCursorPos(input.windowPtr, &input.mousePos.x, &input.mousePos.y);
                 input.deltaMousePos.x = input.mousePos.x - input.prevMousePos.x;
@@ -49,7 +50,6 @@ public:
                     glfwSetInputMode(input.windowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 }
 
-                input.keyStates->clear();
                 // Only one input component for now return immediately
                 return false;
             }};

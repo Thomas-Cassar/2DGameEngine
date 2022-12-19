@@ -17,7 +17,7 @@ public:
     void update(Ecs::EntityManager& manager, float deltaTime_s) override
     {
         Ecs::ComponentsForEachFn<Component::MovementComponent, Component::TransformComponent> const forEachMovement{
-            [&manager, &deltaTime_s](Ecs::Entity entity, Component::MovementComponent& movement,
+            [&deltaTime_s](Ecs::Entity entity, Component::MovementComponent& movement,
                                      Component::TransformComponent& transform) {
                 if (!movement.canMove)
                 {
@@ -34,23 +34,25 @@ public:
                 }
                 // Velocities for this time step is approximated to the new velocity
                 movement.velocity += movement.acceleration * deltaTime_s;
+
+                // Clamp to terminal velocity
+                glm::vec3 velocity = movement.terminalVelocityAffectsVertical
+                                         ? movement.velocity
+                                         : glm::vec3{movement.velocity.x, 0.0f, movement.velocity.z};
+                if (glm::length(velocity) > movement.terminalVelocity)
+                {
+                    velocity = glm::normalize(velocity) * movement.terminalVelocity;
+                }
+
+                movement.velocity = movement.terminalVelocityAffectsVertical
+                                        ? velocity
+                                        : glm::vec3{velocity.x, movement.velocity.y, velocity.z};
+                                                                             
+
                 transform.position += movement.velocity * deltaTime_s;
 
                 // Reset acceleration so forces can be applied again during the next frame
                 movement.acceleration = {};
-
-                // Clamp to terminal velocity
-                glm::vec3 horizontalVelocity{movement.velocity.x, 0.0f, movement.velocity.z};
-                float verticalVelocity{movement.velocity.y};
-                if (glm::length(horizontalVelocity) > movement.terminalVelocityHorizontal)
-                {
-                    horizontalVelocity = glm::normalize(horizontalVelocity) * movement.terminalVelocityHorizontal;
-                }
-                if (std::fabs(verticalVelocity) > movement.terminalVelocityVertical)
-                {
-                    verticalVelocity = movement.terminalVelocityVertical;
-                }
-                movement.velocity = glm::vec3{horizontalVelocity.x, verticalVelocity, horizontalVelocity.z};
 
                 // Angular
                 // Derivation:

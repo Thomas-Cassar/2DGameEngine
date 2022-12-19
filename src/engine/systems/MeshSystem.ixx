@@ -16,18 +16,52 @@ namespace System
 
 // clang-format off
 constexpr unsigned int cubeIndicies[] = {
-        0,1,2,// Bottom face
+        0,1,2,// -Y
         0,2,3,
-        4,6,5,// Top face
+        4,6,5,// +Y
         4,7,6,
-        3,2,7,// Front face
-        2,6,7,
-        2,1,6,// Right face
-        1,5,6,
-        1,0,5,// Back face
-        0,4,5,
-        0,3,7,// Left face
-        0,7,4
+        9,11,8,// +Z
+        11,10,8,
+        12,15,14,// +X
+        12,13,15,
+        16,19,18,// -Z
+        16,17,19,
+        20,22,23,// -X
+        20,21,22
+};
+        // clang-format off
+constexpr float cubeVerticies[] = {// Translation                            // Normals
+                            // -y
+                                -1.0f / 2.0f, -1.0f / 2.0f, -1.0f/2.0f,    0.0f, -1.0f, 0.0f,
+                                 1.0f / 2.0f, -1.0f / 2.0f, -1.0f/2.0f,    0.0f, -1.0f, 0.0f,
+                                 1.0f / 2.0f, -1.0f / 2.0f,  1.0f/2.0f,    0.0f, -1.0f, 0.0f,
+                                -1.0f / 2.0f, -1.0f / 2.0f,  1.0f/2.0f,    0.0f, -1.0f, 0.0f,
+                            // +Y
+                                -1.0f / 2.0f,  1.0f / 2.0f, -1.0f/2.0f,    0.0f, 1.0f, 0.0f,
+                                 1.0f / 2.0f,  1.0f / 2.0f, -1.0f/2.0f,    0.0f, 1.0f, 0.0f,
+                                 1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,    0.0f, 1.0f, 0.0f,
+                                -1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,    0.0f, 1.0f, 0.0f,
+                            // +Z
+                               -1.0f / 2.0f, -1.0f / 2.0f,  1.0f/2.0f,     0.0f,0.0f,1.0f,
+                                1.0f / 2.0f, -1.0f / 2.0f,  1.0f/2.0f,     0.0f,0.0f,1.0f,
+                               -1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,     0.0f,0.0f,1.0f,
+                                1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,     0.0f,0.0f,1.0f,
+                            // +X
+                                1.0f / 2.0f, -1.0f / 2.0f,  1.0f/2.0f,     1.0f,0.0f,0.0f,
+                                1.0f / 2.0f, -1.0f / 2.0f, -1.0f/2.0f,     1.0f,0.0f,0.0f,
+                                1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,     1.0f,0.0f,0.0f,
+                                1.0f / 2.0f,  1.0f / 2.0f, -1.0f/2.0f,     1.0f,0.0f,0.0f,
+                            // -Z
+                                1.0f / 2.0f, -1.0f / 2.0f, -1.0f/2.0f,     0.0f,0.0f,-1.0f,
+                               -1.0f / 2.0f, -1.0f / 2.0f, -1.0f/2.0f,     0.0f,0.0f,-1.0f,
+                                1.0f / 2.0f,  1.0f / 2.0f, -1.0f/2.0f,     0.0f,0.0f,-1.0f,
+                               -1.0f / 2.0f,  1.0f / 2.0f, -1.0f/2.0f,     0.0f,0.0f,-1.0f,
+                            // -X
+                               -1.0f / 2.0f, -1.0f / 2.0f, -1.0f/2.0f,     -1.0f,0.0f,0.0f,
+                               -1.0f / 2.0f, -1.0f / 2.0f,  1.0f/2.0f,     -1.0f,0.0f,0.0f,
+                               -1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,     -1.0f,0.0f,0.0f,
+                               -1.0f / 2.0f,  1.0f / 2.0f, -1.0f/2.0f,     -1.0f,0.0f,0.0f,
+
 };
 
 // clang-format on
@@ -37,21 +71,47 @@ public:
     void update(Ecs::EntityManager& manager, float deltaTime_s) override
     {
         // Get projection*view matrix from the first camera available
-        glm::mat4 projectionViewMatrix;
+        glm::mat4 projection;
+        glm::mat4 view;
         Ecs::ComponentsForEachFn<Component::CameraComponent, Component::TransformComponent> const forEachCamera{
-            [&manager, &projectionViewMatrix](Ecs::Entity entity, Component::CameraComponent& cam,
-                                              Component::TransformComponent& transform) {
-                projectionViewMatrix =
-                    cam.proj * glm::lookAt(transform.position + cam.offset,
-                                           cam.cameraFront + transform.position + cam.offset, cam.cameraUp);
+            [&projection,&view](Ecs::Entity entity, Component::CameraComponent& cam,
+                                    Component::TransformComponent& transform) {
+                projection = cam.proj;
+                view = glm::lookAt(transform.position + cam.offset, cam.cameraFront + transform.position + cam.offset,
+                                   cam.cameraUp);
                 return false;
             }};
         manager.forEachComponents(forEachCamera);
 
+        glm::vec3 ambientLightColor{};
+        Ecs::ComponentsForEachFn<Component::AmbientLightComponent> const forEachAmbientLight{
+            [&ambientLightColor](Ecs::Entity entity, Component::AmbientLightComponent& light) {
+                ambientLightColor += light.strength * light.color;
+                return true;
+            }};
+        manager.forEachComponents(forEachAmbientLight);
+
+        // For now only support one diffuse light
+        glm::vec3 difLightPos{};
+        glm::vec3 difLightColor{1.0f, 1.0f, 1.0f};
+        Ecs::ComponentsForEachFn<Component::DiffuseLightComponent, Component::TransformComponent> const
+            forEachDirectionalLight{[&difLightPos, &difLightColor](Ecs::Entity entity,
+                                                                   Component::DiffuseLightComponent& light,
+                                                                   Component::TransformComponent& transform) {
+                difLightColor = light.strength * light.color;
+                if (difLightColor != glm::vec3{})
+                {
+                    difLightColor = glm::normalize(difLightColor);
+                }
+                difLightPos = transform.position;
+                return false;
+            }};
+        manager.forEachComponents(forEachDirectionalLight);
+
         // Render every mesh
         Ecs::ComponentsForEachFn<Component::MeshComponent, Component::TransformComponent> const forEachMesh{
-            [&manager, &projectionViewMatrix](Ecs::Entity entity, Component::MeshComponent& component,
-                                              Component::TransformComponent& transform) {
+            [&manager, &view, &projection, &ambientLightColor, &difLightPos, &difLightColor](
+                Ecs::Entity entity, Component::MeshComponent& component, Component::TransformComponent& transform) {
                 if (!component.vertexBuffer || !component.vertexBufferLayout || !component.vertexArray ||
                     !component.indexBuffer || !component.shader)
                 {
@@ -60,14 +120,24 @@ public:
                 component.shader->bind();
                 if (manager.hasComponents<Component::ColorComponent>(entity))
                 {
-                    glm::vec4& color{manager.getComponent<Component::ColorComponent>(entity).color};
-                    component.shader->setUniform4f("COLOR", color.x, color.y, color.z, color.w);
+                    glm::vec3& color{manager.getComponent<Component::ColorComponent>(entity).color};
+                    component.shader->setUniform3f("u_objectColor", color.x, color.y, color.z);
                 }
-                glm::mat4 modelMat{glm::translate(glm::mat4(1.0F), transform.position)};
-                modelMat *= glm::toMat4(transform.rotation);
-                modelMat = glm::scale(modelMat, transform.scale);
-                glm::mat4 mvp = projectionViewMatrix * modelMat;
-                component.shader->SetUniformMat4f("MVP", mvp);
+                else
+                {
+                    component.shader->setUniform3f("u_objectColor", 0.0f, 0.0f, 0.0f);
+                }
+                glm::mat4 model{glm::translate(glm::mat4(1.0F), transform.position)};
+                model *= glm::toMat4(transform.rotation);
+                model = glm::scale(model, transform.scale);
+
+                component.shader->SetUniformMat4f("u_model", model);
+                component.shader->SetUniformMat4f("u_view", view);
+                component.shader->SetUniformMat4f("u_projection", projection);
+                component.shader->setUniform3f("u_ambientLightColor", ambientLightColor.x, ambientLightColor.y,
+                                               ambientLightColor.z);
+                component.shader->setUniform3f("u_difLightPos", difLightPos.x, difLightPos.y, difLightPos.z);
+                component.shader->setUniform3f("u_difLightColor", difLightColor.x, difLightColor.y, difLightColor.z);
 
                 component.vertexArray->bind();
                 component.indexBuffer->bind();
@@ -84,27 +154,15 @@ public:
         manager.forEachComponents(forEachMesh);
     }
 
-    static Ecs::Entity createCubeColored(Ecs::EntityManager& manager, Component::TransformComponent&& pos,
-                                         glm::vec4&& color = {1.0F, 1.0F, 1.0F, 1.0F})
+    static Ecs::Entity addCubeMeshComponent(Ecs::EntityManager& manager, Ecs::Entity entity, Component::TransformComponent&& pos,
+                                         glm::vec3&& color = {1.0F, 1.0F, 1.0F})
     {
-        Ecs::Entity entity{manager.createEntity()};
-        // clang-format off
-    float const verArray[] = {// Translation
-                                -1.0f / 2.0f, -1.0f / 2.0f, -1.0f/2.0f,
-                                 1.0f / 2.0f, -1.0f / 2.0f, -1.0f/2.0f,
-                                 1.0f / 2.0f, -1.0f / 2.0f,  1.0f/2.0f,
-                                -1.0f / 2.0f, -1.0f / 2.0f,  1.0f/2.0f,
-                                -1.0f / 2.0f,  1.0f / 2.0f, -1.0f/2.0f,
-                                 1.0f / 2.0f,  1.0f / 2.0f, -1.0f/2.0f,
-                                 1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,
-                                -1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,
-    };
-        // clang-format on
         Component::MeshComponent mesh;
         mesh.vertexBuffer =
-            std::make_unique<Graphics::VertexBuffer>(verArray, static_cast<unsigned int>(sizeof(verArray)));
+            std::make_unique<Graphics::VertexBuffer>(cubeVerticies, static_cast<unsigned int>(sizeof(cubeVerticies)));
 
         mesh.vertexBufferLayout = std::make_unique<Graphics::VertexBufferLayout>();
+        mesh.vertexBufferLayout->push(GL_FLOAT, 3, false);
         mesh.vertexBufferLayout->push(GL_FLOAT, 3, false);
 
         mesh.vertexArray = std::make_unique<Graphics::VertexArray>();
@@ -119,47 +177,6 @@ public:
         manager.addComponent<Component::TransformComponent>(entity, std::move(pos));
         manager.addComponent<Component::BoxCollision>(entity, {pos.scale.x, pos.scale.y, pos.scale.z});
         manager.addComponent<Component::ColorComponent>(entity, std::move(color));
-        return entity;
-    }
-
-    static Ecs::Entity createCubeTextured(Ecs::EntityManager& manager, Component::TransformComponent&& pos,
-                                          std::string const& texture)
-    {
-        Ecs::Entity entity{manager.createEntity()};
-        // clang-format off
-    float const verArray[] = {// Translation                            Texture Coords
-                                -1.0f / 2.0f, -1.0f / 2.0f, -1.0f/2.0f,   1.0,0.0,
-                                 1.0f / 2.0f, -1.0f / 2.0f, -1.0f/2.0f,   0.0,0.0,
-                                 1.0f / 2.0f, -1.0f / 2.0f,  1.0f/2.0f,   1.0,0.0,
-                                -1.0f / 2.0f, -1.0f / 2.0f,  1.0f/2.0f,   0.0,0.0,
-                                -1.0f / 2.0f,  1.0f / 2.0f, -1.0f/2.0f,   1.0,1.0,
-                                 1.0f / 2.0f,  1.0f / 2.0f, -1.0f/2.0f,   0.0,1.0,
-                                 1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,   1.0,1.0,
-                                -1.0f / 2.0f,  1.0f / 2.0f,  1.0f/2.0f,   0.0,1.0,
-    };
-        // clang-format on
-        Component::MeshComponent mesh;
-        mesh.vertexBuffer =
-            std::make_unique<Graphics::VertexBuffer>(verArray, static_cast<unsigned int>(sizeof(verArray)));
-
-        mesh.vertexBufferLayout = std::make_unique<Graphics::VertexBufferLayout>();
-        mesh.vertexBufferLayout->push(GL_FLOAT, 3, false);
-        mesh.vertexBufferLayout->push(GL_FLOAT, 2, false);
-
-        mesh.vertexArray = std::make_unique<Graphics::VertexArray>();
-        mesh.vertexArray->addBuffer(*mesh.vertexBuffer, *mesh.vertexBufferLayout);
-
-        mesh.indexBuffer = std::make_unique<Graphics::IndexBuffer>(
-            cubeIndicies, static_cast<unsigned int>(sizeof(cubeIndicies) / sizeof(cubeIndicies[0])));
-
-        mesh.shader =
-            std::make_unique<Graphics::Shader>("shaders/Plane2DTextured.vert", "shaders/Plane2DTextured.frag");
-        mesh.shader->bind();
-        mesh.shader->setUniform1i("texture1", 0);
-        manager.addComponent<Component::TextureComponent>(entity, {texture});
-
-        manager.addComponent<Component::MeshComponent>(entity, std::move(mesh));
-        manager.addComponent<Component::TransformComponent>(entity, std::move(pos));
         return entity;
     }
 };
