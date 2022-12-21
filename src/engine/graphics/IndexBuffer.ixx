@@ -25,6 +25,10 @@ public:
         glCheck(glBufferData(GL_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW));
     }
 
+    IndexBuffer(IndexBuffer const&) = delete;
+
+    IndexBuffer& operator=(IndexBuffer const&) = delete;
+
     /**
      * @brief Destroy the Index Buffer object
      *

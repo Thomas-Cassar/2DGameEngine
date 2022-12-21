@@ -6,12 +6,14 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "imgui.h"
 #include <chrono>
+#include <filesystem>
 #include <iostream>
 #include <queue>
 
 import Component;
 import Ecs;
 import System;
+import Graphics;
 
 #ifdef _WIN32
 extern "C" { // Use High Performance GPU
@@ -85,6 +87,7 @@ int main()
         Ecs::SystemManager sysManager(manager);
         Component::registerComponents(*manager);
         System::registerSystems(sysManager);
+        Graphics::ResourceManager resourceManager;
 
         Ecs::Entity player{manager->createEntity()};
         manager->addComponent<Component::CameraComponent>(player, {{}});
@@ -97,22 +100,13 @@ int main()
         Ecs::Entity ambientLight{manager->createEntity()};
         manager->addComponent<Component::AmbientLightComponent>(ambientLight, {});
         Ecs::Entity diffuseLight{manager->createEntity()};
-        System::MeshSystem::addCubeMeshComponent(*manager, diffuseLight, {{0.0, 10.0f, 0.0f}}, {1.0f,0.7f,0.0f});
         manager->addComponent<Component::PointLightComponent>(diffuseLight, {});
-
-        Ecs::Entity coloredCube1{manager->createEntity()};
-        System::MeshSystem::addCubeMeshComponent(*manager, coloredCube1, {{0.0F, 0.0F, 0.0F}, {}, {5.0F, 1.0F, 5.0F}},
-                                                 {1.0F, 1.0F, 1.0F});
-        constexpr int numCubes{100};
-        for (int i{}; i < numCubes; i++)
-        {
-            Ecs::Entity cube{manager->createEntity()};
-            System::MeshSystem::addCubeMeshComponent(*manager,
-                                                  cube,
-                {{static_cast<float>(rand()) / RAND_MAX * 100.0f, static_cast<float>(rand()) / RAND_MAX * 2.0f - 2.0f,
-                  static_cast<float>(rand()) / RAND_MAX * 100.0f}},
-                {1.0f, 0.0f, 0.0f});
-        }
+        manager->addComponent<Component::TransformComponent>(diffuseLight, {{5.0, 10.0, 0.0}});
+        Ecs::Entity model{manager->createEntity()};
+        manager->addComponent<Component::ModelComponent>(
+            model, {resourceManager.getResourceId<Graphics::Model>(std::filesystem::path("assets/Pencil.gltf")),
+                    &resourceManager});
+        manager->addComponent<Component::TransformComponent>(model, {});
 
         std::chrono::time_point lastTime{std::chrono::steady_clock::now()};
 

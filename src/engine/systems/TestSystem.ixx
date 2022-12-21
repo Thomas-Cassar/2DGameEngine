@@ -18,11 +18,9 @@ public:
     {
         ImGui::Begin("Debug Window");
         Ecs::ComponentsForEachFn<Component::PointLightComponent, Component::TransformComponent> const forEachDiffuse{
-            [](Ecs::Entity entity, Component::PointLightComponent& light,
-               Component::TransformComponent& transform) {
-                float lightPos[3] = {transform.position.x, transform.position.y,
-                                     transform.position.z};
-                ImGui::SliderFloat3("Light position",lightPos,-100.0f,100.0f);
+            [](Ecs::Entity entity, Component::PointLightComponent& light, Component::TransformComponent& transform) {
+                float lightPos[3] = {transform.position.x, transform.position.y, transform.position.z};
+                ImGui::SliderFloat3("Light position", lightPos, -100.0f, 100.0f);
                 transform.position = {lightPos[0], lightPos[1], lightPos[2]};
 
                 ImGui::InputFloat("Specular Intensity", &light.specularStength);

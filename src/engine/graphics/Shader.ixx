@@ -108,6 +108,10 @@ public:
         shaderID = createShader(vertexFilePath, fragmentFilePath);
     }
 
+    Shader(Shader const&) = delete;
+
+    Shader& operator=(Shader const&) = delete;
+
     /**
      * @brief Destroy the Shader object
      */

@@ -1,11 +1,17 @@
 export module Graphics;
 
-export import :IndexBuffer;
-export import :Shader;
-export import :VertexBufferLayout;
-export import :VertexArray;
-export import :VertexBuffer;
+import :IndexBuffer;
+import :Shader;
+import :VertexBufferLayout;
+import :VertexArray;
+import :VertexBuffer;
+import :Mesh;
+import :MeshImpl;
+import :ResourceManager;
 export import :Texture2D;
+export import :Model;
+export import :ResourceManagerImpl;
+
 import "graphics/Common.hpp";
 
 namespace Graphics

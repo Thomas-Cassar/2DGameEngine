@@ -21,6 +21,10 @@ public:
      */
     VertexArray() { glCheck(glGenVertexArrays(1, &vaID)); }
 
+    VertexArray(VertexArray const&) = delete;
+
+    VertexArray& operator=(VertexArray const&) = delete;
+
     /**
      * @brief Destroy the Vertex Array object
      *

@@ -25,6 +25,10 @@ public:
         glCheck(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
     }
 
+    VertexBuffer(VertexBuffer const&) = delete;
+
+    VertexBuffer& operator=(VertexBuffer const&) = delete;
+
     /**
      * @brief Destroy the Vertex Buffer object
      *

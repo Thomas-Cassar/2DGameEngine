@@ -20,8 +20,8 @@ public:
                                  Component::MovementComponent, Component::InputComponent, Component::CameraComponent,
                                  Component::BoxCollision> const forEachPlayer{
             [](Ecs::Entity entity, Component::PlayerComponent& player, Component::TransformComponent& transform,
-                       Component::MovementComponent& move, Component::InputComponent& input,
-                       Component::CameraComponent& cam, Component::BoxCollision& box) {
+               Component::MovementComponent& move, Component::InputComponent& input, Component::CameraComponent& cam,
+               Component::BoxCollision& box) {
                 movePlayer(move, cam, input, box, player);
                 return true;
             }};
@@ -31,7 +31,8 @@ public:
 
 private:
     static void movePlayer(Component::MovementComponent& move, Component::CameraComponent const& cam,
-                           Component::InputComponent const& input, Component::BoxCollision const& box,Component::PlayerComponent& player)
+                           Component::InputComponent const& input, Component::BoxCollision const& box,
+                           Component::PlayerComponent& player)
     {
         // DEBUG CONTROLS
         if (InputSystem::isKeyPressedTransition(input, GLFW_KEY_R))
@@ -62,7 +63,7 @@ private:
         // If we are using debug controls allow moving on y axis
         if (player.debugControls)
         {
-            forwardVector=cam.cameraFront;
+            forwardVector = cam.cameraFront;
         }
 
         if (InputSystem::isKeyPressedDown(input, GLFW_KEY_W))
@@ -94,8 +95,9 @@ private:
         // When not moving accelerate in direction opposite of velocity to slow down
         else
         {
-            //If using debug controls also slow down on y axis
-            glm::vec3 velocity=player.debugControls ? move.velocity : glm::vec3{move.velocity.x, 0.0f, move.velocity.z};
+            // If using debug controls also slow down on y axis
+            glm::vec3 velocity =
+                player.debugControls ? move.velocity : glm::vec3{move.velocity.x, 0.0f, move.velocity.z};
             if (glm::length2(velocity) > epsilon)
             {
                 moveAcceleration = glm::normalize(velocity) * decelerationMag;

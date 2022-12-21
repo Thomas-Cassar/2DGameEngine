@@ -23,7 +23,7 @@ public:
         Ecs::ComponentsForEachFn<Component::CameraComponent, Component::TransformComponent,
                                  Component::InputComponent> const forEachCamera{
             [&deltaTime_s](Ecs::Entity entity, Component::CameraComponent& camera,
-                                     Component::TransformComponent& transform, Component::InputComponent& input) {
+                           Component::TransformComponent& transform, Component::InputComponent& input) {
                 int width, height;
                 glfwGetWindowSize(input.windowPtr, &width, &height);
                 updateCameraProjectionMatrix(camera, kFov, static_cast<float>(width), static_cast<float>(height));

@@ -18,7 +18,7 @@ public:
     {
         Ecs::ComponentsForEachFn<Component::MovementComponent, Component::TransformComponent> const forEachMovement{
             [&deltaTime_s](Ecs::Entity entity, Component::MovementComponent& movement,
-                                     Component::TransformComponent& transform) {
+                           Component::TransformComponent& transform) {
                 if (!movement.canMove)
                 {
                     movement.acceleration = {};
@@ -47,7 +47,6 @@ public:
                 movement.velocity = movement.terminalVelocityAffectsVertical
                                         ? velocity
                                         : glm::vec3{velocity.x, movement.velocity.y, velocity.z};
-                                                                             
 
                 transform.position += movement.velocity * deltaTime_s;
 

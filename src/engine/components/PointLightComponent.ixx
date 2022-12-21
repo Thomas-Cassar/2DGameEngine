@@ -13,9 +13,6 @@ export struct PointLightComponent : public Ecs::IComponent {
 
     PointLightComponent() {}
 
-    PointLightComponent(float diffuseStrength, glm::vec3 color) : diffuseStrength(diffuseStrength), color(color)
-    {
-    }
-
+    PointLightComponent(float diffuseStrength, glm::vec3 color) : diffuseStrength(diffuseStrength), color(color) {}
 };
-}
+} // namespace Component

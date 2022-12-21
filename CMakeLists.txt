@@ -94,6 +94,20 @@ add_library(imgui ${IMGUI_SRCS})
 target_include_directories(imgui PUBLIC ${FETCHCONTENT_BASE_DIR}/imgui-src)
 target_link_libraries(imgui glfw)
 
+#assimp
+FetchContent_Declare(
+    assimp
+    GIT_REPOSITORY https://github.com/assimp/assimp.git
+    GIT_TAG v5.2.5
+)
+
+FetchContent_MakeAvailable(assimp)
+
+if(NOT assimp_POPULATED)
+    FetchContent_Populate(assimp)
+    set(ASSIMP_INSTALL OFF)
+endif()
+
 #Core Lib
 file(GLOB CORE_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/core/*.ixx)
 add_library(core ${CORE_MODULES})
@@ -104,7 +118,7 @@ file(GLOB GRAPHICS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/*.cpp)
 file(GLOB GRAPHICS_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/*.ixx)
 add_library(graphics ${GRAPHICS_SRCS} ${GRAPHICS_MODULES})
 target_include_directories(graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/includes)
-target_link_libraries(graphics core libglew_static stb glm glfw)
+target_link_libraries(graphics core libglew_static stb glm glfw assimp)
 
 #entity_component_system Lib
 file(GLOB ECS_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/ecs/*.ixx)
