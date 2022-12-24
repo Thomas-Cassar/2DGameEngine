@@ -109,20 +109,22 @@ if(NOT assimp_POPULATED)
 endif()
 
 #Core Lib
-file(GLOB CORE_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/core/*.ixx)
-add_library(core ${CORE_MODULES})
+file(GLOB CORE_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/core/*.cpp)
+file(GLOB CORE_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/core/modules/*.ixx)
+add_library(core ${CORE_SOURCES} ${CORE_MODULES})
 target_link_libraries(core)
 
 #Graphics Lib
 file(GLOB GRAPHICS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/*.cpp)
-file(GLOB GRAPHICS_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/*.ixx)
+file(GLOB GRAPHICS_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/modules/*.ixx)
 add_library(graphics ${GRAPHICS_SRCS} ${GRAPHICS_MODULES})
 target_include_directories(graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/graphics/includes)
 target_link_libraries(graphics core libglew_static stb glm glfw assimp)
 
 #entity_component_system Lib
-file(GLOB ECS_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/ecs/*.ixx)
-add_library(ecs ${ECS_MODULES})
+file(GLOB ECS_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/ecs/*.cpp)
+file(GLOB ECS_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/ecs/modules/*.ixx)
+add_library(ecs ${ECS_SOURCES} ${ECS_MODULES})
 target_link_libraries(ecs core imgui)
 
 #Components Lib
@@ -131,8 +133,9 @@ add_library(components ${COMPONENTS_MODULES})
 target_link_libraries(components core glm ecs graphics glfw)
 
 #Systems Lib
-file(GLOB SYSTEMS_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/systems/*.ixx)
-add_library(systems ${SYSTEMS_MODULES})
+file(GLOB SYSTEMS_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/systems/*.cpp)
+file(GLOB SYSTEMS_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/systems/modules/*.ixx)
+add_library(systems ${SYSTEMS_SOURCES} ${SYSTEMS_MODULES})
 target_link_libraries(systems core glm components ecs imgui)
 
 #Link libs to main executable
